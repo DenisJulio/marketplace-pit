@@ -1,0 +1,10 @@
+{
+  "name": "frontend",
+  "private": true,
+  "scripts": {
+    "dev": "npx tailwindcss -i ./public/input.css -o ./public/static/style.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.14"
+  }
+}

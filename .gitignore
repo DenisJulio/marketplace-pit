@@ -1,0 +1,5 @@
+node_modules
+tmp
+package-lock.json
+components/*_templ.go
+public/static/style.css
