@@ -11,7 +11,7 @@ import (
 func main() {
 	app := echo.New()
 	app.GET("/", HomeHandler)
-	app.Static("/static", "public/static")
+	app.Static("resources", "public/static")
 	app.Logger.Fatal(app.Start(":3000"))
 }
 
