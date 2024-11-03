@@ -10,9 +10,12 @@ import (
 
 func main() {
 	app := echo.New()
-	app.GET("/", HomeHandler)
+	app.HideBanner = true
+	logger := app.Logger
 	app.Static("resources", "public/static")
-	app.Logger.Fatal(app.Start(":3000"))
+	app.GET("/", HomeHandler)
+	logger.Info("Server started at :3000")
+	logger.Fatal(app.Start(":3000"))
 }
 
 func Render(ctx echo.Context, statusCode int, t templ.Component) error {

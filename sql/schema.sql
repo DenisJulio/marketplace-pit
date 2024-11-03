@@ -1,6 +1,6 @@
 CREATE TABLE usuarios (
     id SERIAL PRIMARY KEY,
-    email VARCHAR(255) NOT NULL UNIQUE,
+    nome_de_usuario VARCHAR(255) NOT NULL UNIQUE,
     nome VARCHAR(255) NOT NULL,
     imagem VARCHAR(255)
 );
@@ -28,10 +28,10 @@ CREATE TABLE ofertas (
 );
 
 -- Insert into usuarios table
-INSERT INTO usuarios (id, nome, email, imagem) VALUES
-(1, 'Pedro Santos', 'denis@email.com', '/resources/images/avatars/pedro-avatar.jpg'),
-(2, 'Maria Antonia', 'maria@email.com', '/resources/images/avatars/maria-avatar.jpg'),
-(3, 'João Marcos', 'joao@email.com', '/resources/images/avatars/joao-avatar.jpg');
+INSERT INTO usuarios (id, nome, nome_de_usuario, imagem) VALUES
+(1, 'Pedro Santos', 'pedr0', '/resources/images/avatars/pedro-avatar.jpg'),
+(2, 'Maria Antonia', 'mari4', '/resources/images/avatars/maria-avatar.jpg'),
+(3, 'João Marcos', 'joa0', '/resources/images/avatars/joao-avatar.jpg');
 
 -- Insert into anuncios table
 INSERT INTO anuncios (id, nome, criado_em, anunciante_id, valor, descricao, imagem) VALUES
