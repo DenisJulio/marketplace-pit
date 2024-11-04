@@ -7,10 +7,19 @@ templ Hello(name string) {
 			<meta charset="UTF-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 			<title>Document</title>
-            <link rel="stylesheet" href="resources/static/style.css">
+			<link rel="stylesheet" href="resources/static/style.css"/>
 		</head>
 		<body>
 			<div class="text-red-500">Hello, { name }</div>
 		</body>
 	</html>
+}
+
+templ AnunciosPage() {
+	<title>Anuncios</title>
+	@layout() {
+		<main id="content">
+			<h1>Hello everyone</h1>
+		</main>
+	}
 }
