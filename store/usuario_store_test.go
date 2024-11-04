@@ -21,7 +21,7 @@ func TestBuscaUsuarioPorID(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(fmt.Sprintf("Buscando por ID de usuario %d", tt.usuarioID), func(t *testing.T) {
-			us := &SQLUsuarioStore{DB: db, Logger: logger}
+			us := &SQLUsuarioStore{db: db, logger: logger}
 			u, err := us.BuscaUsuarioPorID(tt.usuarioID)
 			assert := assert.New(t)
 			if tt.deveFalhar {
@@ -48,7 +48,7 @@ func TestBuscaUsuarioPorNomeDeUsuario(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(fmt.Sprintf("Buscando por nome de usuario %s", tt.nomeDeUsuario), func(t *testing.T) {
-			us := &SQLUsuarioStore{DB: db, Logger: logger}
+			us := &SQLUsuarioStore{db: db, logger: logger}
 			u, err := us.BuscaUsuarioPorNomeDeUsuario(tt.nomeDeUsuario)
 			assert := assert.New(t)
 			if tt.deveFalhar {

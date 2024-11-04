@@ -14,7 +14,6 @@ func main() {
 	logger := app.Logger
 	app.Static("resources", "public/static")
 	app.GET("/", HomeHandler)
-	logger.Info("Server started at :3000")
 	logger.Fatal(app.Start(":3000"))
 }
 
