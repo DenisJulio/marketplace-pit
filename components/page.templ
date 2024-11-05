@@ -1,25 +1,45 @@
 package components
 
-templ Hello(name string) {
-	<!DOCTYPE html>
-	<html lang="en">
-		<head>
-			<meta charset="UTF-8"/>
-			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-			<title>Document</title>
-			<link rel="stylesheet" href="resources/static/style.css"/>
-		</head>
-		<body>
-			<div class="text-red-500">Hello, { name }</div>
-		</body>
-	</html>
-}
+import (
+	"github.com/DenisJulio/marketplace-pit/model"
+	"github.com/DenisJulio/marketplace-pit/utils"
+)
 
-templ AnunciosPage() {
+templ AnunciosPage(anuncios []model.Anuncio) {
 	<title>Anuncios</title>
 	@layout() {
 		<main id="content">
-			<h1>Hello everyone</h1>
+			<div class="mt-6 flex flex-col">
+				for _, anuncio := range anuncios {
+					<div
+						class="p-4 mx-4 mb-4 max-w-md cursor-pointer bg-white rounded-lg shadow-md"
+						hx-get="/anuncios/anuncio.id"
+						hx-select="#content"
+						hx-target="#content"
+						hx-swap="outerHTML show:window:top"
+						hx-push-url="true"
+					>
+						<div class="flex justify-center">
+							<img
+								src={ *anuncio.Imagem }
+								alt="Product"
+								class="h-48 w-auto object-cover rounded-lg"
+							/>
+						</div>
+						<div class="px-4 mt-2">
+							<h2 class="text-lg font-bold mb-2">
+								{ anuncio.Nome }
+							</h2>
+							<p
+								class="text-gray-600 text-sm mb-2"
+							>anunciado há { utils.FormataTempoRelativo(anuncio.CriadoEm) }</p>
+							<p
+								class="text-xl font-bold mb-2"
+							>{ utils.FormataMoedaBR(anuncio.Valor) }</p>
+						</div>
+					</div>
+				}
+			</div>
 		</main>
 	}
 }

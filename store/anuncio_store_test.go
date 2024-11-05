@@ -8,13 +8,13 @@ import (
 )
 
 func TestBuscaTodosAnuncios(t *testing.T) {
-	as := &SQLAnuncioStore{db: db, logger: logger}
+	as := &SQLAnuncioStore{DB: db, Logger: logger}
 	anuncios, err := as.BuscaTodosAnuncios()
 	assert := assert.New(t)
 	assert.NoError(err, "Erro ao buscar todos os anuncios")
 	assert.NotEmpty(anuncios, "Nenhum anuncio encontrado")
 	assert.True(len(anuncios) == 5, "Quantidade de anuncios diferente do esperado")
-	var a model.Anuncio	
+	var a model.Anuncio
 	for _, anuncio := range anuncios {
 		if anuncio.Nome == "Carro" {
 			a = anuncio

@@ -12,16 +12,16 @@ type AnuncioStore interface {
 }
 
 type SQLAnuncioStore struct {
-	db     *sql.DB
-	logger utils.Logger
+	DB     *sql.DB
+	Logger utils.Logger
 }
 
 func (s *SQLAnuncioStore) BuscaTodosAnuncios() ([]model.Anuncio, error) {
 	q := "SELECT id, nome, criado_em, anunciante_id, valor, descricao, imagem FROM anuncios"
-	rows, err := s.db.Query(q)
+	rows, err := s.DB.Query(q)
 	if err != nil {
-		s.logger.Errorf("Erro ao buscar todos os anuncios. %v", err)
-		return nil, err
+		s.Logger.Errorf("Erro ao buscar todos os anuncios. %v", err)
+		return []model.Anuncio{}, err
 	}
 	defer rows.Close()
 
@@ -30,8 +30,8 @@ func (s *SQLAnuncioStore) BuscaTodosAnuncios() ([]model.Anuncio, error) {
 		var a model.Anuncio
 		err := rows.Scan(&a.ID, &a.Nome, &a.CriadoEm, &a.AnuncianteId, &a.Valor, &a.Descricao, &a.Imagem)
 		if err != nil {
-			s.logger.Errorf("Erro ao buscar anuncio. %v", err)
-			return nil, err
+			s.Logger.Errorf("Erro ao buscar anuncio. %v", err)
+			continue
 		}
 		anuncios = append(anuncios, a)
 	}

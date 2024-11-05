@@ -5,7 +5,16 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func RegisterRoutes(e *echo.Echo) {
-	e.Static("resources", "public/static")
-	e.GET("/", handlers.HomeHandler)
+type Router struct {
+	echo *echo.Echo
+	ancH handlers.AnunciosHandler
+}
+
+func NewRouter(e *echo.Echo, ancH handlers.AnunciosHandler) *Router {
+	return &Router{echo: e, ancH: ancH}
+}
+
+func (r *Router) RegisterRoutes() {
+	r.echo.Static("resources", "public/static")
+	r.echo.GET("/", r.ancH.HomeHandler)
 }
