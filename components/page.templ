@@ -14,7 +14,7 @@ templ AnunciosPage(anuncios []model.Anuncio) {
 				<div class="mt-6 mx-4 flex flex-col items-stretch w-full sm:w-[65vw] lg:max-w-4xl lg:grid lg:grid-cols-2 lg:gap-4">
 					for _, anuncio := range anuncios {
 						<div
-							class="p-4 mb-4 cursor-pointer bg-white rounded-lg shadow-md"
+							class="p-4 mb-4 cursor-pointer bg-white border border-slate-300 rounded-lg"
 							hx-get={ string(templ.URL(fmt.Sprintf("/anuncios/%d", anuncio.ID))) }
 							hx-select="#content"
 							hx-target="#content"
