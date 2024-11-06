@@ -17,3 +17,7 @@ func (s *AnuncioServices) BuscaTodosAnuncios() []model.Anuncio {
 	a, _ := s.store.BuscaTodosAnuncios()
 	return a
 }
+
+func (s *AnuncioServices) BuscaAnuncioPorID(id int) (model.Anuncio, error) {
+	return s.store.BuscaAnuncioPorID(id)
+}

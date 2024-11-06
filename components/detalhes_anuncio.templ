@@ -1,0 +1,47 @@
+package components
+
+import (
+	"github.com/DenisJulio/marketplace-pit/model"
+	"github.com/DenisJulio/marketplace-pit/utils"
+)
+
+templ DetalhesDoAnuncio(anuncio model.Anuncio) {
+	@layout() {
+		<main id="content" hx-history-elt>
+			<div class="p-4">
+				<h1 class="text-4xl font-bold mb-4">{ anuncio.Nome }</h1>
+				<div class="flex flex-col gap-4">
+					<div id="foto-produto" class="w-full">
+						<img
+							src={ *anuncio.Imagem }
+							alt="Product"
+							class="h-96 w-full object-cover rounded-lg"
+						/>
+					</div>
+					<div
+						id="card-oferta"
+						class="p-4 h-fit border-solid border-[1px] border-gray-300 rounded-md"
+					>
+						<p
+							class="text-gray-600 text-sm mb-2"
+						>Criado em { utils.FormataDataLocaleBR(anuncio.CriadoEm) }</p>
+						<p
+							class="text-2xl font-bold mb-2"
+						>{ utils.FormataMoedaBR(anuncio.Valor) }</p>
+						<button
+							class="mt-4 w-full rounded-lg p-4 uppercase bg-blue-500 hover:bg-blue-700 text-white font-bold text-xs"
+						>
+							Fazer Oferta
+						</button>
+					</div>
+					<div class="mt-4 p-2">
+						<h3 class="text-xl">Descrição do produto:</h3>
+						<p
+							class="text-gray-600 text-lg mt-4"
+						>{ *anuncio.Descricao }</p>
+					</div>
+				</div>
+			</div>
+		</main>
+	}
+}

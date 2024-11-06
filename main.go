@@ -7,6 +7,7 @@ import (
 	"github.com/DenisJulio/marketplace-pit/services"
 	"github.com/DenisJulio/marketplace-pit/store"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/gommon/log"
 	_ "github.com/lib/pq"
 )
 
@@ -14,11 +15,12 @@ func main() {
 	app := echo.New()
 	app.HideBanner = true
 	logger := app.Logger
+	logger.SetLevel(log.DEBUG)
 
 	db := db.NewDB(logger)
 	anuncioStore := &store.SQLAnuncioStore{DB: db, Logger: logger}
 	anuncioService := services.NewAnuncioService(anuncioStore)
-	anuncioHandler := handlers.NewAnunciosHandler(*anuncioService)
+	anuncioHandler := handlers.NewAnunciosHandler(*anuncioService, logger)
 	router := routes.NewRouter(app, *anuncioHandler)
 	router.RegisterRoutes()
 	logger.Fatal(app.Start(":3000"))

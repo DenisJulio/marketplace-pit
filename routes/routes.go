@@ -16,5 +16,6 @@ func NewRouter(e *echo.Echo, ancH handlers.AnunciosHandler) *Router {
 
 func (r *Router) RegisterRoutes() {
 	r.echo.Static("resources", "public/static")
-	r.echo.GET("/", r.ancH.HomeHandler)
+	r.echo.GET("/", r.ancH.MostraTelaDeAnuncios)
+	r.echo.GET("/anuncios/:id", r.ancH.MostraDetalhesDoAnuncio)
 }

@@ -9,6 +9,7 @@ import (
 
 type AnuncioStore interface {
 	BuscaTodosAnuncios() ([]model.Anuncio, error)
+	BuscaAnuncioPorID(id int) (model.Anuncio, error)
 }
 
 type SQLAnuncioStore struct {
@@ -36,4 +37,18 @@ func (s *SQLAnuncioStore) BuscaTodosAnuncios() ([]model.Anuncio, error) {
 		anuncios = append(anuncios, a)
 	}
 	return anuncios, nil
+}
+
+func (s *SQLAnuncioStore) BuscaAnuncioPorID(id int) (model.Anuncio, error) {
+	s.Logger.Debugf("Buscando anuncio por id=%d", id)
+	q := "SELECT id, nome, criado_em, anunciante_id, valor, descricao, imagem FROM anuncios WHERE id = $1"
+	row := s.DB.QueryRow(q, id)
+
+	var a model.Anuncio
+	err := row.Scan(&a.ID, &a.Nome, &a.CriadoEm, &a.AnuncianteId, &a.Valor, &a.Descricao, &a.Imagem)
+	if err != nil {
+		s.Logger.Errorf("Erro ao buscar anuncio por id=%d. %v", id, err)
+		return model.Anuncio{}, err
+	}
+	return a, nil
 }
