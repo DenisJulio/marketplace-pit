@@ -18,4 +18,5 @@ func (r *Router) RegisterRoutes() {
 	r.echo.Static("resources", "public/static")
 	r.echo.GET("/", r.ancH.MostraTelaDeAnuncios)
 	r.echo.GET("/anuncios/:id", r.ancH.MostraDetalhesDoAnuncio)
+	r.echo.GET("/anuncios/:id/nova-oferta", r.ancH.MostraTelaDeNovaOferta)
 }

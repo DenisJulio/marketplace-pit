@@ -39,3 +39,17 @@ func (h *AnunciosHandler) MostraDetalhesDoAnuncio(c echo.Context) error {
 	}
 	return render(c, http.StatusOK, components.DetalhesDoAnuncio(anuncio))
 }
+
+func (h *AnunciosHandler) MostraTelaDeNovaOferta(c echo.Context) error {
+	id := c.Param("id")
+	h.logger.Debugf("Path id recebido: %s", id)
+	convId, err := strconv.Atoi(id)
+	if err != nil {
+		h.logger.Errorf("Erro ao converter id recebido: %s para inteiro. %v", id, err)
+	}
+	anuncio, err := h.service.BuscaAnuncioPorID(convId)
+	if err != nil {
+		h.logger.Errorf("Anuncio com id=%d nao encontrado", convId)
+	}
+	return render(c, http.StatusOK, components.NovaOferta(anuncio))
+}
