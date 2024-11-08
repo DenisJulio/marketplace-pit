@@ -18,9 +18,11 @@ func main() {
 	logger.SetLevel(log.DEBUG)
 
 	db := db.NewDB(logger)
+	usuarioStore := store.NewSQLUsuarioStore(db, logger)
 	anuncioStore := &store.SQLAnuncioStore{DB: db, Logger: logger}
+	usuarioService := services.NewUsuarioService(usuarioStore)
 	anuncioService := services.NewAnuncioService(anuncioStore)
-	anuncioHandler := handlers.NewAnunciosHandler(*anuncioService, logger)
+	anuncioHandler := handlers.NewAnunciosHandler(*anuncioService, *usuarioService, logger)
 	router := routes.NewRouter(app, *anuncioHandler)
 	router.RegisterRoutes()
 	logger.Fatal(app.Start(":3000"))

@@ -11,16 +11,17 @@ import (
 )
 
 type AnunciosHandler struct {
-	service services.AnuncioServices
+	anunSvc services.AnuncioServices
+	usuSvc  services.UsuarioService
 	logger  utils.Logger
 }
 
-func NewAnunciosHandler(service services.AnuncioServices, logger utils.Logger) *AnunciosHandler {
-	return &AnunciosHandler{service: service, logger: logger}
+func NewAnunciosHandler(anunSvc services.AnuncioServices, usuSvc services.UsuarioService, logger utils.Logger) *AnunciosHandler {
+	return &AnunciosHandler{anunSvc: anunSvc, usuSvc: usuSvc, logger: logger}
 }
 
 func (h *AnunciosHandler) MostraTelaDeAnuncios(c echo.Context) error {
-	anuncios := h.service.BuscaTodosAnuncios()
+	anuncios := h.anunSvc.BuscaTodosAnuncios()
 	return render(c, http.StatusOK, components.AnunciosPage(anuncios))
 }
 
@@ -32,7 +33,7 @@ func (h *AnunciosHandler) MostraDetalhesDoAnuncio(c echo.Context) error {
 		h.logger.Errorf("Erro ao converter id recebido: %s para inteiro. %v", id, err)
 		// TODO: reder not founc page
 	}
-	anuncio, err := h.service.BuscaAnuncioPorID(convId)
+	anuncio, err := h.anunSvc.BuscaAnuncioPorID(convId)
 	if err != nil {
 		h.logger.Errorf("Anuncio com id=%d nao encontrado", convId)
 		// TODO: render not found page
@@ -47,9 +48,14 @@ func (h *AnunciosHandler) MostraTelaDeNovaOferta(c echo.Context) error {
 	if err != nil {
 		h.logger.Errorf("Erro ao converter id recebido: %s para inteiro. %v", id, err)
 	}
-	anuncio, err := h.service.BuscaAnuncioPorID(convId)
+	anuncio, err := h.anunSvc.BuscaAnuncioPorID(convId)
 	if err != nil {
 		h.logger.Errorf("Anuncio com id=%d nao encontrado", convId)
 	}
-	return render(c, http.StatusOK, components.NovaOferta(anuncio))
+	anunciante, err := h.usuSvc.BuscaUsuarioPorId(anuncio.AnuncianteId)
+	if err != nil {
+		h.logger.Errorf("Anunciante com id=%d nao encontrado", anuncio.AnuncianteId)
+		// TODO: Tratar esse erro melhor
+	}
+	return render(c, http.StatusOK, components.NovaOferta(anuncio, anunciante))
 }

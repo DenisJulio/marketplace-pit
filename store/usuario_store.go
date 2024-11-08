@@ -19,7 +19,11 @@ type SQLUsuarioStore struct {
 	logger utils.Logger
 }
 
-func (s *SQLUsuarioStore) BuscaUsuarioPorID(ID int) (model.Usuario, error) {
+func NewSQLUsuarioStore(db *sql.DB, logger utils.Logger) *SQLUsuarioStore {
+	return &SQLUsuarioStore{db: db, logger: logger}
+}
+
+func (s *SQLUsuarioStore) BuscaUsuarioPorId(ID int) (model.Usuario, error) {
 	row := s.db.QueryRow("SELECT id, nome_de_usuario, nome, imagem FROM usuarios WHERE id = $1", ID)
 	var u model.Usuario
 	err := row.Scan(&u.ID, &u.NomeDeUsuario, &u.Nome, &u.Imagem)

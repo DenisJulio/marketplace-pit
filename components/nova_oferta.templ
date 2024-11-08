@@ -6,7 +6,7 @@ import (
 	"github.com/DenisJulio/marketplace-pit/utils"
 )
 
-templ NovaOferta(anuncio model.Anuncio) {
+templ NovaOferta(anuncio model.Anuncio, anunciante model.Usuario) {
 	@layout() {
 		<main id="content" hx-history-elt>
 			<div class="flex justify-center">

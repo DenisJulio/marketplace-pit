@@ -22,7 +22,7 @@ func TestBuscaUsuarioPorID(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(fmt.Sprintf("Buscando por ID de usuario %d", tt.usuarioID), func(t *testing.T) {
 			us := &SQLUsuarioStore{db: db, logger: logger}
-			u, err := us.BuscaUsuarioPorID(tt.usuarioID)
+			u, err := us.BuscaUsuarioPorId(tt.usuarioID)
 			assert := assert.New(t)
 			if tt.deveFalhar {
 				assert.ErrorIs(err, ErrUsuarioNaoEncontrado, "Erro esperado ao buscar usuario nao existente")
