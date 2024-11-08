@@ -2,7 +2,8 @@
   "name": "frontend",
   "private": true,
   "scripts": {
-    "dev": "npx tailwindcss -i ./public/input.css -o ./public/static/style.css --watch"
+    "dev": "npx tailwindcss -i ./public/input.css -o ./public/static/style.css --watch",
+    "serve": "browser-sync start -p localhost:3000"
   },
   "devDependencies": {
     "tailwindcss": "^3.4.14"
