@@ -2,7 +2,7 @@ var bs = require("browser-sync").create();
 
 bs.init({
     proxy: {
-        target: "http://localhost:7000",
+        target: "http://localhost:3030",
     },
     port: 7070,
 })
