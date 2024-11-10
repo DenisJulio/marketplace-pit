@@ -12,20 +12,21 @@ templ NovaOferta(anuncio model.Anuncio, anunciante model.Usuario) {
 			<div class="flex justify-center">
 				<div class="p-4 w-full sm:w-[65vw] md:w-[80vw] lg:max-w-4xl">
 					<h1 class="text-4xl font-bold mb-4">Nova Oferta</h1>
-					<div class="flex flex-col md:flex-row gap-4">
-						<div class="w- md:w-1/3 p-4 border border-slate-300 rounded-md">
-							<img
-								src={ *anuncio.Imagem }
-								alt="Product"
-								class="h-48 w-full object-cover rounded-lg mb-4"
-							/>
-							<h2 class="text-lg font-bold mb-2">{ anuncio.Nome }</h2>
-							<p class="text-xl font-bold mb-2">{ utils.FormataMoedaBR(anuncio.Valor) }</p>
+					<div class="flex flex-col gap-4">
+						<div id="anuncio-details" class="w-1/3 min-w-fit self-end">
+							@anuncioDetalhes(anuncio)
 						</div>
-						<div class="md:w-2/3">
-							<form hx-post={ string(templ.URL(fmt.Sprintf("/anuncios/%d/nova-oferta", anuncio.ID))) } hx-target="#content" hx-swap="outerHTML">
+						<div class="md:w-2/3 self-center">
+							<form
+								hx-post={ string(templ.URL(fmt.Sprintf("/anuncios/%d/nova-oferta", anuncio.ID))) }
+								hx-target="#content"
+								hx-swap="outerHTML"
+							>
 								<div class="mb-4">
-									<label for="mensagem" class="block text-gray-700 text-sm font-bold mb-2">Mensagem para o anunciante:</label>
+									<label for="mensagem" class="block text-gray-700 text-sm font-bold mb-2">
+										Mensagem para o
+										anunciante:
+									</label>
 									<textarea
 										id="mensagem"
 										name="mensagem"
@@ -34,7 +35,10 @@ templ NovaOferta(anuncio model.Anuncio, anunciante model.Usuario) {
 										placeholder="Escreva sua mensagem aqui..."
 									></textarea>
 								</div>
-								<button type="submit" class="mt-4 w-full rounded-lg p-4 uppercase bg-blue-500 hover:bg-blue-700 text-white font-bold text-xs">
+								<button
+									type="submit"
+									class="mt-4 w-full rounded-lg p-4 uppercase bg-blue-500 hover:bg-blue-700 text-white font-bold text-xs"
+								>
 									Criar Oferta
 								</button>
 							</form>
@@ -44,4 +48,14 @@ templ NovaOferta(anuncio model.Anuncio, anunciante model.Usuario) {
 			</div>
 		</main>
 	}
+}
+
+templ anuncioDetalhes(anuncio model.Anuncio) {
+	<div class="p-4 flex justify-end bg-gray-200 gap-4 border border-slate-400 rounded-md">
+		<div>
+			<h2 class="text-md font-bold text-slate-600">{ anuncio.Nome }</h2>
+			<p class="text-md text-slate-500">{ utils.FormataMoedaBR(anuncio.Valor) }</p>
+		</div>
+		<img src={ *anuncio.Imagem } alt="Product" class="h-24 w-24 object-cover rounded-lg"/>
+	</div>
 }

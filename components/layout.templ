@@ -21,20 +21,13 @@ templ layout() {
 						hx-swap="outerHTML"
 						hx-push-url="true"
 					>
-						<img
-							src="/resources/icons/marketplace.png"
-							alt="Logo"
-							class="h-6 w-6 mr-4"
-						/>
+						<img src="/resources/icons/marketplace.png" alt="Logo" class="h-6 w-6 mr-4"/>
 						<span class="text-md font-bold text-white">Marketplace</span>
 					</div>
 				</nav>
 			</header>
 			{ children... }
 			<script type="text/javascript" src="/resources/htmx.min.js"></script>
-			// <script src="https://cdn.jsdelivr.net/npm/@awcodes/alpine-floating-ui@3.x.x/dist/cdn.min.js" defer></script>
-			// <script defer src="/webjars/alpinejs/dist/cdn.min.js}"></script>
-			// <script type="text/javascript" src="@{/webjars/htmx.org/dist/htmx.min.js}"></script>
 		</body>
 	</html>
 }
