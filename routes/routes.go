@@ -19,4 +19,5 @@ func (r *Router) RegisterRoutes() {
 	r.echo.GET("/", r.ancH.MostraTelaDeAnuncios)
 	r.echo.GET("/anuncios/:id", r.ancH.MostraDetalhesDoAnuncio)
 	r.echo.GET("/anuncios/:id/nova-oferta", r.ancH.MostraTelaDeNovaOferta)
+	r.echo.POST("/anuncios/:id/nova-oferta", r.ancH.CriaOferta)
 }

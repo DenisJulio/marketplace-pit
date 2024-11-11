@@ -17,6 +17,10 @@ type SQLAnuncioStore struct {
 	Logger utils.Logger
 }
 
+func NewSQLAnuncioStore(db *sql.DB, logger utils.Logger) *SQLAnuncioStore {
+	return &SQLAnuncioStore{db, logger}
+}
+
 func (s *SQLAnuncioStore) BuscaTodosAnuncios() ([]model.Anuncio, error) {
 	q := "SELECT id, nome, criado_em, anunciante_id, valor, descricao, imagem FROM anuncios"
 	rows, err := s.DB.Query(q)

@@ -13,11 +13,12 @@ import (
 type AnunciosHandler struct {
 	anunSvc services.AnuncioServices
 	usuSvc  services.UsuarioService
+	oftSvc	services.OfertaService
 	logger  utils.Logger
 }
 
-func NewAnunciosHandler(anunSvc services.AnuncioServices, usuSvc services.UsuarioService, logger utils.Logger) *AnunciosHandler {
-	return &AnunciosHandler{anunSvc: anunSvc, usuSvc: usuSvc, logger: logger}
+func NewAnunciosHandler(anunSvc services.AnuncioServices, usuSvc services.UsuarioService, oftSvc services.OfertaService, logger utils.Logger) *AnunciosHandler {
+	return &AnunciosHandler{anunSvc: anunSvc, usuSvc: usuSvc, oftSvc: oftSvc, logger: logger}
 }
 
 func (h *AnunciosHandler) MostraTelaDeAnuncios(c echo.Context) error {
@@ -58,4 +59,23 @@ func (h *AnunciosHandler) MostraTelaDeNovaOferta(c echo.Context) error {
 		// TODO: Tratar esse erro melhor
 	}
 	return render(c, http.StatusOK, components.NovaOferta(anuncio, anunciante))
+}
+
+func (h *AnunciosHandler) CriaOferta(c echo.Context) error {
+	// parse the form request
+	c.Request().ParseForm()
+	msg := c.FormValue("mensagem")
+	h.logger.Debugf("POST request recebido com mensagem=%s", msg)
+
+	// validate form
+	if msg == "" {
+		h.logger.Errorf("Mensagem nao pode ser vazia")
+	}
+
+	// create the oferta
+	h.oftSvc.CriaNovaOfertaParaAnuncio(msg)
+
+	// redirect to Home
+	c.Response().Header().Set("HX-Redirect", "/")
+	return c.NoContent(http.StatusOK)
 }

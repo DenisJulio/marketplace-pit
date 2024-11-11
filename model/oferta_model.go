@@ -9,3 +9,12 @@ type Oferta struct {
 	OfertanteID int
 	AnuncioID int
 }
+
+func NewOferta(anuncianteID int, ofertanteID int, anuncioID int) *Oferta {
+	return &Oferta{
+		CriadoEm: time.Now(),
+		AnuncianteID: anuncianteID,
+		OfertanteID: ofertanteID,
+		AnuncioID: anuncioID,
+	}
+}
