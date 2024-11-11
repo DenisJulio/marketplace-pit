@@ -2,14 +2,13 @@ package store
 
 import (
 	"database/sql"
-	"time"
 
 	"github.com/DenisJulio/marketplace-pit/model"
 	"github.com/DenisJulio/marketplace-pit/utils"
 )
 
 type OfertaStore interface {
-	CriaNovaOfertaParaAnuncio(ofertanteID int, anuncianteID int, anuncioID int, criadoEm time.Time, msg string) (int, error)
+	CriaNovaOfertaParaAnuncio(oferta model.Oferta, msg model.Mensagem) (int, error)
 	BuscaTodasAsMensagensDaOferta(ofertaID int) ([]model.Mensagem, error)
 }
 
