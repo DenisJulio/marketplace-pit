@@ -5,3 +5,10 @@ type Usuario struct {
 	Nome, NomeDeUsuario string
 	Imagem              *string
 }
+
+func NovoUsuario(nome , nomeDeUsuario string) *Usuario {
+	return &Usuario{
+		Nome:         nome,
+		NomeDeUsuario: nomeDeUsuario,
+	}
+}
