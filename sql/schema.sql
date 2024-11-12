@@ -2,6 +2,7 @@ CREATE TABLE usuarios (
     id SERIAL PRIMARY KEY,
     nome_de_usuario VARCHAR(255) NOT NULL UNIQUE,
     nome VARCHAR(255) NOT NULL,
+    senha VARCHAR(255) NOT NULL,
     imagem VARCHAR(255)
 );
 
@@ -38,10 +39,10 @@ CREATE TABLE mensagens (
 );
 
 -- Insert into usuarios table
-INSERT INTO usuarios (nome, nome_de_usuario, imagem) VALUES
-('Pedro Santos', 'pedr0', '/resources/images/avatars/pedro-avatar.jpg'),
-('Maria Antonia', 'mari4', '/resources/images/avatars/maria-avatar.jpg'),
-('João Marcos', 'joa0', '/resources/images/avatars/joao-avatar.jpg');
+INSERT INTO usuarios (nome, nome_de_usuario, senha, imagem) VALUES
+('Pedro Santos', 'pedr0', 'pedro santos', '/resources/images/avatars/pedro-avatar.jpg'),
+('Maria Antonia', 'mari4', 'maria antonia', '/resources/images/avatars/maria-avatar.jpg'),
+('João Marcos', 'joa0', 'joao marcos', '/resources/images/avatars/joao-avatar.jpg');
 
 -- Insert into anuncios table
 INSERT INTO anuncios (nome, criado_em, anunciante_id, valor, descricao, imagem) VALUES

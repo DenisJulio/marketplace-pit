@@ -1,9 +1,12 @@
 package store
 
 import (
+	"context"
 	"fmt"
+	"path/filepath"
 	"testing"
 
+	"github.com/DenisJulio/marketplace-pit/testutils"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -59,4 +62,20 @@ func TestBuscaUsuarioPorNomeDeUsuario(t *testing.T) {
 			assert.Equal(tt.nomeEsperado, u.Nome, "Resultado diferente do esperado")
 		})
 	}
+}
+
+func TestInsereNovoUsuario(t *testing.T) {
+	ctx := context.Background()
+	pg, port, _ := testutils.StartPGContainer(ctx, testutils.DefaultDbConfig, filepath.Join("../sql", "schema.sql"))
+	db, _ := testutils.ConnectToDB(testutils.DefaultDbConfig, port.Int())
+	defer pg.Terminate(ctx)
+	defer db.Close()
+
+	usuStore := NewSQLUsuarioStore(db, logger)
+	var err error
+	err = usuStore.InsereNovoUsuario("denisJulio", "Denis Julio", "123456")
+	assert := assert.New(t)
+	assert.NoError(err)
+	_, err = usuStore.BuscaUsuarioPorNomeDeUsuario("denisJulio")
+	assert.NoError(err)
 }

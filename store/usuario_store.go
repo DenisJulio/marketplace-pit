@@ -10,6 +10,9 @@ import (
 
 type UsuarioStore interface {
 	BuscaUsuarioPorId(ID int) (model.Usuario, error)
+	BuscaUsuarioPorNomeDeUsuario(nomeDeUsuario string) (model.Usuario, error)
+	VerificaUsuarioExistente(nomeDeUsuario string) bool
+	InsereNovoUsuario(nomeDeUsuario, nome, senha string) error
 }
 
 var ErrUsuarioNaoEncontrado = errors.New("usuario nao encontrado")
@@ -51,4 +54,28 @@ func (s *SQLUsuarioStore) BuscaUsuarioPorNomeDeUsuario(nomeDeUsuario string) (mo
 		return model.Usuario{}, err
 	}
 	return u, nil
+}
+
+func (s *SQLUsuarioStore) VerificaUsuarioExistente(nomeDeUsuario string) bool {
+	q := `SELECT 1 FROM usuarios WHERE nome_de_usuario = $1`
+	var exists int
+	err := s.db.QueryRow(q, nomeDeUsuario).Scan(&exists)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return false
+		}
+		s.logger.Errorf("Erro ao verificar se o usuário %s já existe", err)
+		return false
+	}
+	return true
+}
+
+func (s *SQLUsuarioStore) InsereNovoUsuario(nomeDeUsuario, nome, senha string) error {
+	q := `INSERT INTO usuarios (nome_de_usuario, nome, senha) VALUES ($1, $2, $3)`
+	_, err := s.db.Exec(q, nomeDeUsuario, nome, senha)
+	if err != nil {
+		s.logger.Errorf("Erro ao inserir os dados para novo segredos de usuario. %v", err)
+		return err
+	}
+	return nil
 }
