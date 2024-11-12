@@ -1,11 +1,11 @@
-run_templ:
-	templ generate --watch --proxy="http://localhost:3000" --open-browser=false -proxyport=7000 -v
+start_pg:
+	dc start
 
-run_server:
+dev:
 	air
 
-live:
-	make -j 2 run_templ run_server
-
 test:
-	go test -v ./store
+	go test ./store ./handlers
+
+int_test:
+	hurl --test ./integrationtests/test.hurl
