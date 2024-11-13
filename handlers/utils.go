@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/DenisJulio/marketplace-pit/utils"
 	"github.com/a-h/templ"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
@@ -35,7 +36,8 @@ func iniciarSessao(ctx echo.Context, nomeDeUsuario string) error {
 	return nil
 }
 
-func buscaNomeDeUsuarioDaSessao(ctx echo.Context) (string, error) {
+func buscaNomeDeUsuarioDaSessao(ctx echo.Context, logger utils.Logger) (string, error) {
+	logger.Debugf("Buscando sessao para: %s", ctx.Request().URL.Path)
 	cookie, err := ctx.Cookie("sessaoID")
 	if err != nil {
 		return "", err

@@ -21,13 +21,16 @@ func (m *Middleware) AuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		m.logger.Debugf("Iniciando autenticacao para: %s", c.Request().URL.Path)
 
-		nomeDeUsuario, err := buscaNomeDeUsuarioDaSessao(c)
+		nomeDeUsuario, err := buscaNomeDeUsuarioDaSessao(c, m.logger)
 		if err != nil || nomeDeUsuario == "" {
 			m.logger.Debugf("Request nao autenticado para: %s", c.Request().URL.Path)
 			reqUrl := c.Request().URL.Path
 			loginURL := fmt.Sprintf("/login?redirect_to=%s", url.QueryEscape(reqUrl))
-			c.Response().Header().Set("HX-Redirect", loginURL)
-			return c.NoContent(http.StatusUnauthorized)
+			if c.Request().Header.Get("HX-Request") == "true" {
+				c.Response().Header().Set("HX-Redirect", loginURL)
+				return c.NoContent(http.StatusUnauthorized)
+			}
+			return c.Redirect(http.StatusSeeOther, loginURL)
 		}
 		return next(c)
 	}
