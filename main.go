@@ -20,10 +20,15 @@ func main() {
 	db := db.NewDB(logger)
 	usuarioStore := store.NewSQLUsuarioStore(db, logger)
 	anuncioStore := &store.SQLAnuncioStore{DB: db, Logger: logger}
-	usuarioService := services.NewUsuarioService(usuarioStore)
+	ofertaStrore := store.NewSQLOfertaStore(db, logger)
+	usuarioService := services.NewUsuarioService(usuarioStore, logger)
 	anuncioService := services.NewAnuncioService(anuncioStore)
-	anuncioHandler := handlers.NewAnunciosHandler(*anuncioService, *usuarioService, logger)
-	router := routes.NewRouter(app, *anuncioHandler)
+	ofertaService := services.NewOfertaService(*&ofertaStrore)
+	anuncioHandler := handlers.NewAnunciosHandler(*anuncioService, *usuarioService, *ofertaService, logger)
+	authHandler := handlers.NovoAuthHandler(logger)
+	usuarioHandler := handlers.NovoUsuarioHandler(*usuarioService, logger)
+	mid := handlers.NovoMiddleware(logger)
+	router := routes.NewRouter(app, *anuncioHandler,*usuarioHandler, *authHandler, *mid)
 	router.RegisterRoutes()
 	logger.Fatal(app.Start(":3000"))
 }

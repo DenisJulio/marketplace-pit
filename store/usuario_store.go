@@ -13,9 +13,13 @@ type UsuarioStore interface {
 	BuscaUsuarioPorNomeDeUsuario(nomeDeUsuario string) (model.Usuario, error)
 	VerificaUsuarioExistente(nomeDeUsuario string) bool
 	InsereNovoUsuario(nomeDeUsuario, nome, senha string) error
+	VerificaSegredosDeUsuario(nomeDeUsuario, senha string) (model.Usuario, error)
 }
 
-var ErrUsuarioNaoEncontrado = errors.New("usuario nao encontrado")
+var (
+	ErrUsuarioNaoEncontrado = errors.New("usuario nao encontrado")
+	ErrSenhaInvalida        = errors.New("senha invalida")
+)
 
 type SQLUsuarioStore struct {
 	db     *sql.DB
@@ -78,4 +82,22 @@ func (s *SQLUsuarioStore) InsereNovoUsuario(nomeDeUsuario, nome, senha string) e
 		return err
 	}
 	return nil
+}
+
+func (s *SQLUsuarioStore) VerificaSegredosDeUsuario(nomeDeUsuario, senha string) (model.Usuario, error) {
+	q := `SELECT id, nome_de_usuario, nome, senha, imagem FROM usuarios WHERE nome_de_usuario = $1`
+	row := s.db.QueryRow(q, nomeDeUsuario)
+	var u model.Usuario
+	err := row.Scan(&u.ID, &u.NomeDeUsuario, &u.Nome, &u.Senha, &u.Imagem)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return model.Usuario{}, ErrUsuarioNaoEncontrado
+		}
+		s.logger.Errorf("Erro ao buscar usuario por nome de usuario:%s. %v", nomeDeUsuario, err)
+		return model.Usuario{}, err
+	}
+	if u.Senha != senha {
+		return model.Usuario{}, ErrSenhaInvalida
+	}
+	return u, nil
 }

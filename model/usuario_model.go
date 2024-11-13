@@ -1,14 +1,14 @@
 package model
 
 type Usuario struct {
-	ID                  int
-	Nome, NomeDeUsuario string
-	Imagem              *string
+	ID                         int
+	Nome, NomeDeUsuario, Senha string
+	Imagem                     *string
 }
 
-func NovoUsuario(nome , nomeDeUsuario string) *Usuario {
+func NovoUsuario(nome, nomeDeUsuario string) *Usuario {
 	return &Usuario{
-		Nome:         nome,
+		Nome:          nome,
 		NomeDeUsuario: nomeDeUsuario,
 	}
 }

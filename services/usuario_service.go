@@ -5,6 +5,7 @@ import (
 
 	"github.com/DenisJulio/marketplace-pit/model"
 	"github.com/DenisJulio/marketplace-pit/store"
+	"github.com/DenisJulio/marketplace-pit/utils"
 )
 
 var (
@@ -13,11 +14,17 @@ var (
 )
 
 type UsuarioService struct {
-	s store.UsuarioStore
+	s      store.UsuarioStore
+	logger utils.Logger
 }
 
-func NewUsuarioService(s store.UsuarioStore) *UsuarioService {
-	return &UsuarioService{s: s}
+type segredosDeUsuario struct {
+	nomeDeUsuario string
+	senha         string
+}
+
+func NewUsuarioService(s store.UsuarioStore, logger utils.Logger) *UsuarioService {
+	return &UsuarioService{s: s, logger: logger}
 }
 
 func (us *UsuarioService) BuscaUsuarioPorId(id int) (model.Usuario, error) {
@@ -30,12 +37,22 @@ func (us *UsuarioService) VerificaUsuarioExistente(nomeDeUsuario string) bool {
 
 func (us *UsuarioService) RegistraNovoUsuario(nome, nomeDeUsuario, senha string) error {
 	if err := validaDadosParaRegistro(nome, nomeDeUsuario, senha); err != nil {
+		us.logger.Debugf("%v", err)
 		return ErrDadosParaRegistroInvalidos
 	}
 	if us.s.VerificaUsuarioExistente(nomeDeUsuario) {
+		us.logger.Debugf("%v", ErrUsuarioExistente)
 		return ErrUsuarioExistente
 	}
 	if err := us.s.InsereNovoUsuario(nomeDeUsuario, nome, senha); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (us *UsuarioService) VerificaSegredosDeUsuario(nomeDeUsuario, senha string) error {
+	_, err := us.s.VerificaSegredosDeUsuario(nomeDeUsuario, senha)
+	if err != nil {
 		return err
 	}
 	return nil

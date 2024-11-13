@@ -57,8 +57,7 @@ func (h *AnunciosHandler) MostraTelaDeNovaOferta(c echo.Context) error {
 	return render(c, http.StatusOK, components.NovaOferta(anuncio, anunciante))
 }
 
-func (h *AnunciosHandler) CriaOferta(c echo.Context) error {
-	// TODO: extrair o id do anunciante da sessao
+func (h *AnunciosHandler) CriaNovaOfertaParaAnuncio(c echo.Context) error {
 	var ofertanteId int
 
 	// extrair e validar o formulario
