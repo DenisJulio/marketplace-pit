@@ -6,6 +6,7 @@ import (
 	"github.com/DenisJulio/marketplace-pit/routes"
 	"github.com/DenisJulio/marketplace-pit/services"
 	"github.com/DenisJulio/marketplace-pit/store"
+
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
 	_ "github.com/lib/pq"
@@ -28,7 +29,7 @@ func main() {
 	authHandler := handlers.NovoAuthHandler(logger)
 	usuarioHandler := handlers.NovoUsuarioHandler(*usuarioService, logger)
 	mid := handlers.NovoMiddleware(logger)
-	router := routes.NewRouter(app, *anuncioHandler,*usuarioHandler, *authHandler, *mid)
+	router := routes.NewRouter(app, *anuncioHandler, *usuarioHandler, *authHandler, *mid)
 	router.RegisterRoutes()
 	logger.Fatal(app.Start(":3000"))
 }

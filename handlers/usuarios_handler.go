@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/DenisJulio/marketplace-pit/components"
 	"github.com/DenisJulio/marketplace-pit/services"
 	"github.com/DenisJulio/marketplace-pit/utils"
 	"github.com/labstack/echo/v4"
@@ -52,24 +53,21 @@ func (h *UsuarioHandler) AutenticaUsuario(c echo.Context) error {
 	var err error
 	if err = validaDadosParaLogin(nomeDeUsuario, senha); err != nil {
 		h.logger.Errorf("%v", err)
-		return c.NoContent(http.StatusBadRequest)
+		render(c, http.StatusOK, components.AlertaErroAutenticacao())
 	}
 	err = h.usuSvc.VerificaSegredosDeUsuario(nomeDeUsuario, senha)
 	if err != nil {
-		// TODO display this error to the frontend in some way
+		h.logger.Errorf("Erro ao autenticar o usuario: %s. %v", nomeDeUsuario, err)
+		render(c, http.StatusOK, components.AlertaErroAutenticacao())
 	}
 
-	// iniciar sessao
 	if err = iniciarSessao(c, nomeDeUsuario); err != nil {
 		h.logger.Errorf("Erro ao iniciar a sessao para o usuario: %s. %v", nomeDeUsuario, err)
-		// TODO display this error to the frontend in some way
-		return c.NoContent(http.StatusInternalServerError)
 	}
 
 	if redirectTo == "" {
-		redirectTo = "/" // Default redirect if no URL was specified
+		redirectTo = "/"
 	}
-	// TODO: redirect the user to the page they weer already going to
 	c.Response().Header().Set("HX-Redirect", redirectTo)
 	return c.NoContent(http.StatusOK)
 }
