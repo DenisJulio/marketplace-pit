@@ -21,6 +21,7 @@ func (r *Router) RegisterRoutes() {
 	r.echo.Static("resources", "public/static")
 	r.echo.GET("/login", r.authH.MostraTelaDeLogin)
 	r.echo.POST("/login", r.usuH.AutenticaUsuario)
+	r.echo.GET("/entrar-na-conta", r.usuH.MostraBotaoDeEntrarNaConta)
 	r.echo.GET("/cadastro", r.authH.MostraTelaDeCadastro)
 	r.echo.POST("/cadastro", r.usuH.CadastraNovoUsuario)
 	r.echo.GET("/", r.ancH.MostraTelaDeAnuncios)

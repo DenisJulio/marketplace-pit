@@ -31,6 +31,10 @@ func (us *UsuarioService) BuscaUsuarioPorId(id int) (model.Usuario, error) {
 	return us.s.BuscaUsuarioPorId(id)
 }
 
+func (us *UsuarioService) BuscaUsuarioPorNomeDeUsuario(nomeDeUsuario string) (model.Usuario, error) {
+	return us.s.BuscaUsuarioPorNomeDeUsuario(nomeDeUsuario)
+}
+
 func (us *UsuarioService) VerificaUsuarioExistente(nomeDeUsuario string) bool {
 	return us.s.VerificaUsuarioExistente(nomeDeUsuario)
 }

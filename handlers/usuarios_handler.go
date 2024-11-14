@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/DenisJulio/marketplace-pit/components"
+	"github.com/DenisJulio/marketplace-pit/model"
 	"github.com/DenisJulio/marketplace-pit/services"
 	"github.com/DenisJulio/marketplace-pit/utils"
 	"github.com/labstack/echo/v4"
@@ -70,6 +71,25 @@ func (h *UsuarioHandler) AutenticaUsuario(c echo.Context) error {
 	}
 	c.Response().Header().Set("HX-Redirect", redirectTo)
 	return c.NoContent(http.StatusOK)
+}
+
+func (h *UsuarioHandler) MostraBotaoDeEntrarNaConta(c echo.Context) error {
+	nomeDeUsuario, err := buscaNomeDeUsuarioDaSessao(c, h.logger)
+	var imagem string = ""
+	var usuario model.Usuario
+	var estaLogado bool
+	if err != nil || nomeDeUsuario == "" {
+		usuario = model.Usuario{}
+		estaLogado = false	
+	}
+	usuario, err = h.usuSvc.BuscaUsuarioPorNomeDeUsuario(nomeDeUsuario)
+	if err != nil {
+		estaLogado = false	
+	} else {
+		estaLogado = true	
+		imagem = *usuario.Imagem
+	}
+	return render(c, http.StatusOK, components.EntrarNaConta(estaLogado, imagem))
 }
 
 func validaDadosParaLogin(nomeDeUsuario, senha string) error {
