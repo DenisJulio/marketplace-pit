@@ -48,7 +48,7 @@ templ layout() {
 
 templ EntrarNaConta(autenticado bool, imagem string) {
 	<body>
-		<div id="minha-conta" class="flex items-center mr-5">
+		<div id="minha-conta" class="flex items-center mr-5 cursor-pointer">
 			if (autenticado) {
 				<img src={ imagem } alt="User Profile" class="h-12 w-12 rounded-full border border-white"/>
 			} else {
