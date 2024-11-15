@@ -1,8 +1,6 @@
-start_pg:
-	dc start
-
 dev:
-	air
+	@./run_dev_server.sh
+	
 
 test:
 	go test ./store ./handlers
