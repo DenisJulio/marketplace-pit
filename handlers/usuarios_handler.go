@@ -72,7 +72,13 @@ func (h *UsuarioHandler) AutenticaUsuario(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
+func (h *UsuarioHandler) MostraPaginaDeMinhaConta(c echo.Context) error {
+	return render(c, http.StatusOK, components.MinhaConta())
+}
+
 func (h *UsuarioHandler) MostraBotaoDeEntrarNaConta(c echo.Context) error {
+	// TODO -- below is the production code, uncomment after feature is finished
+	// coment back to continue working on the feature
 	nomeDeUsuario, err := buscaNomeDeUsuarioDaSessao(c, h.logger)
 	if err != nil || nomeDeUsuario == "" {
 		return render(c, http.StatusOK, components.EntrarNaConta(false, ""))
@@ -82,6 +88,7 @@ func (h *UsuarioHandler) MostraBotaoDeEntrarNaConta(c echo.Context) error {
 		return render(c, http.StatusOK, components.EntrarNaConta(false, ""))
 	}
 	return render(c, http.StatusOK, components.EntrarNaConta(true, *usuario.Imagem))
+	// return render(c, http.StatusOK, components.EntrarNaConta(true, ""))
 }
 
 func validaDadosParaLogin(nomeDeUsuario, senha string) error {
