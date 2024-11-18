@@ -1,40 +1,157 @@
 package components
 
 templ PaginaDeCadastro() {
-@layout() {
-<main id="content">
-  <div class="p-4 flex justify-center items-center min-h-screen bg-gray-100">
-    <div class="p-4 h-fit border-solid border border-slate-300 rounded-md">
-      <h2 class="text-2xl text-left font-bold mb-6">Crie uma nova conta</h2>
-      <form hx-post="/cadastro" class="space-y-4">
-        <div>
-          <label class="block text-gray-700 font-medium mb-1" for="nomeDeUsuario">Nome de usuário:</label>
-          <input type="text" id="nomeDeUsuario" name="nomeDeUsuario"
-            class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required />
-        </div>
-        <div>
-          <label class="block text-gray-700 font-medium mb-1" for="nome">Nome:</label>
-          <input type="text" id="nome" name="nome"
-            class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required />
-        </div>
-        <div>
-          <label class="block text-gray-700 font-medium mb-1" for="senha">Senha:</label>
-          <input type="password" id="password" name="senha"
-            class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required />
-        </div>
-        <button type="submit"
-          class="font-bold text-xs uppercase w-full bg-blue-500 text-white p-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-          Register
-        </button>
-        <!-- Response message target -->
-        <div id="register-message" class="text-center text-red-600 mt-4"></div>
-      </form>
-      <p class="text-center mt-4">
-        Já possui uma conta?
-        <a href="/login" class="text-indigo-500 hover:underline">Entre aqui</a>
-      </p>
-    </div>
-  </div>
-</main>
+	@layout() {
+		<main id="content">
+			<div class="p-4 flex justify-center items-center min-h-screen bg-gray-100">
+				<div
+					class="p-4 h-fit border-solid border border-slate-300 rounded-md"
+					x-data="{
+            nomeDeUsuario: {
+              valor: '',
+              interagido: false,
+              existe: false,
+              get invalido() {
+                return this.interagido && this.valor.trim() === '' || this.existe;
+              },
+            },
+            nome: {
+              valor: '',
+              interagido: false,
+              get invalido() {
+                return this.interagido && this.valor.trim() === '';
+              },
+            },
+            senha: {
+              valor: '', 
+              interagido: false,
+              get invalido() {
+                return this.interagido && this.valor.trim() === '' || this.interagido && this.valor.length < 8;
+              },
+            },
+            get camposInvalidos() {
+              return this.nomeDeUsuario.invalido || this.nome.invalido || this.senha.invalido;
+            },
+            get camposNaoInteragidos() {
+              return !this.nomeDeUsuario.interagido || !this.nome.interagido || !this.senha.interagido;
+            }
+          }"
+				>
+					<h2 class="text-2xl text-left font-bold mb-6">Crie uma nova conta</h2>
+					<form hx-post={ string(templ.URL("/cadastro")) } class="space-y-4">
+						<div>
+							<label class="block text-gray-700 font-medium mb-1" for="nomeDeUsuario">Nome de usuário:</label>
+							<input
+								type="text"
+								id="nomeDeUsuario"
+								name="nomeDeUsuario"
+								x-model="nomeDeUsuario.valor"
+								hx-post={ string(templ.URL("/cadastro/nome-de-usuario")) }
+								hx-trigger="input"
+								hx-select="#validacaoNomeDeUsuario"
+								hx-target="#validacaoNomeDeUsuario"
+								class="w-full px-4 py-2 border rounded-md focus:outline-none"
+								:class="nomeDeUsuario.invalido ? 'border-red-500  focus:ring focus:ring-red-500' : 'focus:ring focus:ring-indigo-500'"
+								@blur="nomeDeUsuario.interagido = true"
+								required
+							/>
+							<p x-show="nomeDeUsuario.invalido && !nomeDeUsuario.existe" class="text-red-500 text-xs mt-1">
+								O nome de usuário não pode estar em branco.
+							</p>
+							<p id="validacaoNomeDeUsuario"></p>
+						</div>
+						<div>
+							<label class="block text-gray-700 font-medium mb-1" for="nome">Nome:</label>
+							<input
+								type="text"
+								id="nome"
+								name="nome"
+								x-model="nome.valor"
+								@blur="nome.interagido = true"
+								class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+								:class="nome.invalido ? 'border-red-500  focus:ring focus:ring-red-500' : 'focus:ring focus:ring-indigo-500'"
+								required
+							/>
+							<p x-show="nome.invalido" class="text-red-500 text-xs mt-1">
+								O nome não pode estar em branco.
+							</p>
+						</div>
+						@inputSenhaCadastro()
+						<button
+							type="submit"
+							class="font-bold text-xs uppercase w-full disabled:bg-opacity-50 bg-blue-500 text-white p-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+							:disabled="camposInvalidos || camposNaoInteragidos"
+						>
+							Cadastrar
+						</button>
+						<!-- Response message target -->
+						<div id="register-message" class="text-center text-red-600 mt-4"></div>
+					</form>
+					<p class="text-center mt-4">
+						Já possui uma conta?
+						<a href="/login" class="text-indigo-500 hover:underline">Entre aqui</a>
+					</p>
+				</div>
+			</div>
+		</main>
+	}
 }
+
+templ AlertaValidacaoNomeDeUsuario(usuarioExiste bool) {
+	<body>
+		if usuarioExiste {
+			<p
+				id="validacaoNomeDeUsuario"
+				x-init="$nextTick(() => {nomeDeUsuario.existe = true;})"
+				class="text-red-500 text-xs mt-1"
+			>
+				Nome
+				de usuário já cadastrado
+			</p>
+		} else {
+			<p id="validacaoNomeDeUsuario" x-init="$nextTick(() => {nomeDeUsuario.existe = false;})"></p>
+		}
+	</body>
+}
+
+templ inputSenhaCadastro() {
+	<div
+		x-data="{
+        showPassword: false,
+        cursorPosition: 0,
+        togglePasswordVisibility() {
+            this.showPassword = !this.showPassword;
+            cursorPosition = $refs.passwordInput.selectionStart;
+            $refs.passwordInput.setSelectionRange(0, 0);
+            $refs.passwordInput.focus();
+            $nextTick(() => { $refs.passwordInput.setSelectionRange(cursorPosition, cursorPosition); });
+        }
+    }"
+		class="relative"
+	>
+		<label class="block text-gray-700 font-medium mb-1" for="senha">Senha:</label>
+		<div class="relative">
+			<input
+				:type="showPassword ? 'text' : 'password'"
+				id="senha"
+				name="senha"
+				class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 pr-10"
+				x-ref="passwordInput"
+				x-model="senha.valor"
+				@focus="cursorPosition = $refs.passwordInput.selectionStart"
+				@input="cursorPosition = $refs.passwordInput.selectionStart"
+				@blur="senha.interagido = true"
+				:class="senha.invalido ? 'border-red-500  focus:ring focus:ring-red-500' : 'focus:ring focus:ring-indigo-500'"
+				required
+			/>
+			<button
+				type="button"
+				@click="togglePasswordVisibility()"
+				class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 focus:outline-none"
+			>
+				<i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+			</button>
+		</div>
+		<p x-show="senha.invalido" class="text-red-500 text-xs mt-1">A senha deve conter pelo menos 8 caracteres</p>
+	</div>
 }

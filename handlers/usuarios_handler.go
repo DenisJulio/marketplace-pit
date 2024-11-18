@@ -41,6 +41,12 @@ func (h *UsuarioHandler) CadastraNovoUsuario(ctx echo.Context) error {
 	return ctx.NoContent(http.StatusCreated)
 }
 
+func (h *UsuarioHandler) ValidaNomeDeUsuarioNaoExistente(ctx echo.Context) error {
+	nomeDeUsuario := ctx.FormValue("nomeDeUsuario")
+	usuarioExiste := h.usuSvc.VerificaUsuarioExistente(nomeDeUsuario)
+	return render(ctx, http.StatusOK, components.AlertaValidacaoNomeDeUsuario(usuarioExiste))
+}
+
 func (h *UsuarioHandler) AutenticaUsuario(c echo.Context) error {
 	h.logger.Debugf("Autenticando usuario")
 
@@ -77,8 +83,6 @@ func (h *UsuarioHandler) MostraPaginaDeMinhaConta(c echo.Context) error {
 }
 
 func (h *UsuarioHandler) MostraBotaoDeEntrarNaConta(c echo.Context) error {
-	// TODO -- below is the production code, uncomment after feature is finished
-	// coment back to continue working on the feature
 	nomeDeUsuario, err := buscaNomeDeUsuarioDaSessao(c, h.logger)
 	if err != nil || nomeDeUsuario == "" {
 		return render(c, http.StatusOK, components.EntrarNaConta(false, ""))
@@ -87,8 +91,11 @@ func (h *UsuarioHandler) MostraBotaoDeEntrarNaConta(c echo.Context) error {
 	if err != nil {
 		return render(c, http.StatusOK, components.EntrarNaConta(false, ""))
 	}
-	return render(c, http.StatusOK, components.EntrarNaConta(true, *usuario.Imagem))
-	// return render(c, http.StatusOK, components.EntrarNaConta(true, ""))
+	usuarioImg := "/resources/images/avatars/avatar-padrao.png"
+	if usuario.Imagem != nil {
+		usuarioImg = *usuario.Imagem
+	}
+	return render(c, http.StatusOK, components.EntrarNaConta(true, usuarioImg))
 }
 
 func validaDadosParaLogin(nomeDeUsuario, senha string) error {

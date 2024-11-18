@@ -24,6 +24,7 @@ func (r *Router) RegisterRoutes() {
 	r.echo.GET("/entrar-na-conta", r.usuH.MostraBotaoDeEntrarNaConta)
 	r.echo.GET("/cadastro", r.authH.MostraTelaDeCadastro)
 	r.echo.POST("/cadastro", r.usuH.CadastraNovoUsuario)
+	r.echo.POST("/cadastro/nome-de-usuario", r.usuH.ValidaNomeDeUsuarioNaoExistente)
 	r.echo.GET("/", r.ancH.MostraTelaDeAnuncios)
 	r.echo.GET("/conta", r.usuH.MostraPaginaDeMinhaConta)
 	r.echo.GET("/anuncios/:id", r.ancH.MostraDetalhesDoAnuncio)
