@@ -12,7 +12,7 @@ type UsuarioStore interface {
 	BuscaUsuarioPorId(ID int) (model.Usuario, error)
 	BuscaUsuarioPorNomeDeUsuario(nomeDeUsuario string) (model.Usuario, error)
 	VerificaUsuarioExistente(nomeDeUsuario string) bool
-	InsereNovoUsuario(nomeDeUsuario, nome, senha string) error
+	InsereNovoUsuario(nomeDeUsuario, nome, senha, imagem string) error
 	VerificaSegredosDeUsuario(nomeDeUsuario, senha string) (model.Usuario, error)
 	AtualizaImagemDeUsuario(nomeDeUsuario, imagem string) error
 	AtualizaNome(nomeDeUsuario, nome string) error
@@ -76,9 +76,9 @@ func (s *SQLUsuarioStore) VerificaUsuarioExistente(nomeDeUsuario string) bool {
 	return true
 }
 
-func (s *SQLUsuarioStore) InsereNovoUsuario(nomeDeUsuario, nome, senha string) error {
-	q := `INSERT INTO usuarios (nome_de_usuario, nome, senha) VALUES ($1, $2, $3)`
-	_, err := s.db.Exec(q, nomeDeUsuario, nome, senha)
+func (s *SQLUsuarioStore) InsereNovoUsuario(nomeDeUsuario, nome, senha, imagem string) error {
+	q := `INSERT INTO usuarios (nome_de_usuario, nome, senha, imagem) VALUES ($1, $2, $3, $4)`
+	_, err := s.db.Exec(q, nomeDeUsuario, nome, senha, imagem)
 	if err != nil {
 		s.logger.Errorf("Erro ao inserir os dados para novo segredos de usuario. %v", err)
 		return err
