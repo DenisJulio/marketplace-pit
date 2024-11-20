@@ -28,6 +28,7 @@ templ layout() {
     </nav>
   </header>
   { children... }
+  <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.14.3/dist/cdn.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/anchor@3.14.3/dist/cdn.min.js"></script>
   <script type="text/javascript" src="/resources/htmx.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.3/dist/cdn.min.js"></script>
@@ -64,7 +65,8 @@ templ menuDeConta(imagem string, links []link) {
 <div x-data="{ open: false }">
   <div x-ref="menu" @click="open = !open" class="relative w-fit flex gap-2 items-center">
     <img src={ imagem } alt="User Profile" class="h-12 w-12 block rounded-full border border-white" hx-get={
-      string(templ.URL("/conta/avatar")) } hx-select="#imagem-avatar-nav" hx-swap="outerHTML" hx-trigger="reload-avatar from:body" />
+      string(templ.URL("/conta/avatar")) } hx-select="#imagem-avatar-nav" hx-swap="outerHTML"
+      hx-trigger="reload-avatar from:body" />
     <i class="fa-solid fa-chevron-down text-white"></i>
   </div>
   <div id="float-menu" x-ref="panel" x-show="open" x-anchor.bottom-end.offset.10="$refs.menu"

@@ -46,5 +46,6 @@ func buscaNomeDeUsuarioDaSessao(ctx echo.Context, logger utils.Logger) (string, 
 	if !ok {
 		return "", echo.ErrUnauthorized
 	}
+	logger.Debugf("Sessao encontrada para: usuario %s acessar %s", un, ctx.Request().URL.Path)
 	return un, nil
 }

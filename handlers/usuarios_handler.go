@@ -28,8 +28,10 @@ func (h *UsuarioHandler) CadastraNovoUsuario(ctx echo.Context) error {
 	senha := ctx.FormValue("senha")
 
 	h.logger.Debugf("Recebendo dados para cadastro: %s, %s, %s", nome, nomeDeUsuario, senha)
+	
+	imagemPadrao := "/resources/images/avatars/avatar-padrao.png"
 
-	if err := h.usuSvc.RegistraNovoUsuario(nome, nomeDeUsuario, senha); err != nil {
+	if err := h.usuSvc.RegistraNovoUsuario(nome, nomeDeUsuario, senha, imagemPadrao); err != nil {
 		if errors.Is(err, services.ErrDadosParaRegistroInvalidos) {
 			return ctx.NoContent(http.StatusBadRequest)
 		}
@@ -79,9 +81,12 @@ func (h *UsuarioHandler) AutenticaUsuario(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
-func (h *UsuarioHandler) MostraPaginaDeMinhaConta(c echo.Context) error {
-	u := h.loginAsUserForDevlopment()
-	return render(c, http.StatusOK, components.MinhaConta(u))
+func (h *UsuarioHandler) MostraPaginaDeMinhaConta(ctx echo.Context) error {
+	usuario, err := h.buscaUsuarioDaSessao(ctx)
+	if err != nil {
+		return render(ctx, http.StatusOK, components.EntrarNaConta(false, ""))
+	}
+	return render(ctx, http.StatusOK, components.MinhaConta(usuario))
 }
 
 func (h *UsuarioHandler) MostraBotaoDeEntrarNaConta(ctx echo.Context) error {
@@ -89,11 +94,7 @@ func (h *UsuarioHandler) MostraBotaoDeEntrarNaConta(ctx echo.Context) error {
 	if err != nil {
 		return render(ctx, http.StatusOK, components.EntrarNaConta(false, ""))
 	}
-	usuarioImg := "/resources/images/avatars/avatar-padrao.png"
-	if usuario.Imagem != nil {
-		usuarioImg = *usuario.Imagem
-	}
-	return render(ctx, http.StatusOK, components.EntrarNaConta(true, usuarioImg))
+	return render(ctx, http.StatusOK, components.EntrarNaConta(true, *usuario.Imagem))
 }
 
 func (h *UsuarioHandler) CarregaFormularioNomeDisplay(c echo.Context) error {

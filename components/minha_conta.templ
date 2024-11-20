@@ -25,7 +25,7 @@ templ MinhaConta(usuario model.Usuario) {
           <!-- Name Display -->
           @NomeLabel(usuario.Nome)
           <button id="edit-name-button" class="text-gray-500 hover:text-gray-700" x-show="!showForm"
-            @click="showForm = true; $nextTick(() => $refs.inputNome.focus())" title="Editar Nome">
+            @click="showForm = true" title="Editar Nome">
             <i class="fa-solid fa-pen"></i>
           </button>
           <!-- Inline Edit Form -->
@@ -52,10 +52,10 @@ templ NomeLabelForm() {
 
 <body>
   <form id="edit-name-form" hx-post={ string(templ.URL("/conta/nome")) } hx-target="#nomeLabel" hx-select="#nomeLabel"
-    x-show="showForm" @submit.prevent="showForm = false" class="flex items-center gap-2">
+    x-show="showForm" x-trap="showForm" @submit.prevent="showForm = false" class="flex items-center gap-2">
     <div class="relative">
       <input id="edit-name-input" name="nome" type="text" x-ref="inputNome"
-        class="border-none bg-transparent px-0 py-0 text-center outline-none focus:ring-0" x-model="nome"
+        class="border-none bg-transparent px-0 py-0 text-center outline-none" x-model="nome"
         maxlength="20" />
       <button type="button" @click="nome = $refs.nomeLabel.innerText;showForm = false"
         class="absolute bg-red-500 h-6 w-6 grid rounded-full inset-y-0 left-0 items-center text-white focus:outline-none">
