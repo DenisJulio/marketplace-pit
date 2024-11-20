@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/DenisJulio/marketplace-pit/components"
+	"github.com/DenisJulio/marketplace-pit/model"
 	"github.com/DenisJulio/marketplace-pit/services"
 	"github.com/DenisJulio/marketplace-pit/utils"
 	"github.com/labstack/echo/v4"
@@ -79,23 +80,61 @@ func (h *UsuarioHandler) AutenticaUsuario(c echo.Context) error {
 }
 
 func (h *UsuarioHandler) MostraPaginaDeMinhaConta(c echo.Context) error {
-	return render(c, http.StatusOK, components.MinhaConta())
+	u := h.loginAsUserForDevlopment()
+	return render(c, http.StatusOK, components.MinhaConta(u))
 }
 
 func (h *UsuarioHandler) MostraBotaoDeEntrarNaConta(c echo.Context) error {
-	nomeDeUsuario, err := buscaNomeDeUsuarioDaSessao(c, h.logger)
-	if err != nil || nomeDeUsuario == "" {
-		return render(c, http.StatusOK, components.EntrarNaConta(false, ""))
-	}
-	usuario, err := h.usuSvc.BuscaUsuarioPorNomeDeUsuario(nomeDeUsuario)
+	/*
+		nomeDeUsuario, err := buscaNomeDeUsuarioDaSessao(c, h.logger)
+		if err != nil || nomeDeUsuario == "" {
+			return render(c, http.StatusOK, components.EntrarNaConta(false, ""))
+		}
+		usuario, err := h.usuSvc.BuscaUsuarioPorNomeDeUsuario(nomeDeUsuario)
+		if err != nil {
+			return render(c, http.StatusOK, components.EntrarNaConta(false, ""))
+		}
+		usuarioImg := "/resources/images/avatars/avatar-padrao.png"
+		if usuario.Imagem != nil {
+			usuarioImg = *usuario.Imagem
+		}
+		return render(c, http.StatusOK, components.EntrarNaConta(true, usuarioImg))
+	*/
+	u := h.loginAsUserForDevlopment()
+	return render(c, http.StatusOK, components.EntrarNaConta(true, *u.Imagem))
+}
+
+func (h *UsuarioHandler) CarregaFormularioNomeDisplay(c echo.Context) error {
+	return render(c, http.StatusOK, components.NomeLabelForm())
+}
+
+func (h *UsuarioHandler) AtualizaNomeDisplay(ctx echo.Context) error {
+	nomeDisplay := ctx.FormValue("nome")
+	// TODO: atualizar o nome no back end
+	/*
+		nomeDeUsuario, err := buscaNomeDeUsuarioDaSessao(c, h.logger)
+		if err != nil {
+			return c.NoContent(http.StatusInternalServerError)
+		}
+		h.usuSvc.AtualizaNomeDisplay(nomeDeUsuario, nomeDisplay)
+	*/
+	return render(ctx, http.StatusOK, components.NomeLabel(nomeDisplay))
+}
+
+func (h *UsuarioHandler) UploadAvatar(ctx echo.Context) error {
+	usuario := h.loginAsUserForDevlopment()
+
+	h.logger.Debugf("Iniciando upload de imagem para avatar")
+	nomeDeUsuario := usuario.NomeDeUsuario
+	const maxUploadSize = 5 * 1024 * 1024
+	file, err := ctx.FormFile("avatar-image")
 	if err != nil {
-		return render(c, http.StatusOK, components.EntrarNaConta(false, ""))
+		h.logger.Errorf("Erro ao obter o arquivo de imagem: %v", err)
+		return ctx.NoContent(http.StatusInternalServerError)
 	}
-	usuarioImg := "/resources/images/avatars/avatar-padrao.png"
-	if usuario.Imagem != nil {
-		usuarioImg = *usuario.Imagem
-	}
-	return render(c, http.StatusOK, components.EntrarNaConta(true, usuarioImg))
+	imgPath, err := h.usuSvc.SalvalNovaImagemDeAvatar(nomeDeUsuario, file)
+
+	return render(ctx, http.StatusOK, components.ImagemAvatar(imgPath))
 }
 
 func validaDadosParaLogin(nomeDeUsuario, senha string) error {
@@ -103,4 +142,10 @@ func validaDadosParaLogin(nomeDeUsuario, senha string) error {
 		return errors.New("Dados para login nao podem ser vazios")
 	}
 	return nil
+}
+
+// TEST apenas
+func (h *UsuarioHandler) loginAsUserForDevlopment() model.Usuario {
+	u, _ := h.usuSvc.BuscaUsuarioPorNomeDeUsuario("joa0")
+	return u
 }

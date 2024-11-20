@@ -14,6 +14,7 @@ type UsuarioStore interface {
 	VerificaUsuarioExistente(nomeDeUsuario string) bool
 	InsereNovoUsuario(nomeDeUsuario, nome, senha string) error
 	VerificaSegredosDeUsuario(nomeDeUsuario, senha string) (model.Usuario, error)
+	AtualizaImagemDeUsuario(nomeDeUsuario, imagem string) error
 }
 
 var (
@@ -100,4 +101,15 @@ func (s *SQLUsuarioStore) VerificaSegredosDeUsuario(nomeDeUsuario, senha string)
 		return model.Usuario{}, ErrSenhaInvalida
 	}
 	return u, nil
+}
+
+func (s SQLUsuarioStore) AtualizaImagemDeUsuario(nomeDeUsuario, imagem string) error {
+	s.logger.Debugf("Atualizando imagem de usuario:%s", nomeDeUsuario)
+	q := `UPDATE usuarios SET imagem = $1 WHERE nome_de_usuario = $2`
+	_, err := s.db.Exec(q, imagem, nomeDeUsuario)
+	if err != nil {
+		s.logger.Errorf("Erro ao atualizar imagem de usuario:%s. %v", nomeDeUsuario, err)
+		return err
+	}
+	return nil
 }
