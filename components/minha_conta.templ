@@ -8,7 +8,8 @@ templ MinhaConta(usuario model.Usuario) {
   <div class="flex justify-center">
     <div class="p-4 flex flex-col w-full sm:w-[65vw] md:w-[80vw] lg:max-w-4xl">
       <h1 class="text-4xl font-bold mb-4">Minha Conta</h1>
-      <div class="mt-14 h-32 w-32 self-center grid grid-cols-1 grid-rows-1">
+      <div class="mt-14 h-32 w-32 self-center grid grid-cols-1 grid-rows-1" x-data
+        @htmx:after-request="console.log('Receiving hook from htmx on load');$dispatch('reload-avatar')">
         <img id="imagem-avatar" src={ *usuario.Imagem } alt="User Profile"
           class="block rounded-full border border-white w-32 h-32 object-cover" />
         <label for="profile-image-upload"
@@ -72,6 +73,16 @@ templ NomeLabelForm() {
 templ ImagemAvatar(imagem string) {
 
 <body>
-  <img id="imagem-avatar" src={ imagem } alt="User Profile" class="block rounded-full border border-white w-32 h-32 object-cover" />
+  <img id="imagem-avatar" src={ imagem } alt="User Profile"
+    class="block rounded-full border border-white w-32 h-32 object-cover" />
+</body>
+}
+
+templ ImagemAvatarNav(imagem string) {
+
+<body>
+  <img id="imagem-avatar-nav" src={ imagem } alt="User Profile" class="h-12 w-12 block rounded-full border border-white" hx-get={
+    string(templ.URL("/conta/avatar")) } hx-select="#imagem-avatar-nav" hx-swap="outerHTML"
+    hx-trigger="reload-avatar from:body" />
 </body>
 }

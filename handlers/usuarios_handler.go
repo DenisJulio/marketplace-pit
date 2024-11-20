@@ -136,6 +136,11 @@ func (h *UsuarioHandler) UploadAvatar(ctx echo.Context) error {
 	return render(ctx, http.StatusOK, components.ImagemAvatar(imgPath))
 }
 
+func (h *UsuarioHandler) CarregaAvatar(ctx echo.Context) error {
+	usuario := h.loginAsUserForDevlopment()
+	return render(ctx, http.StatusOK, components.ImagemAvatarNav(*usuario.Imagem))
+}
+
 func validaDadosParaLogin(nomeDeUsuario, senha string) error {
 	if nomeDeUsuario == "" || senha == "" {
 		return errors.New("Dados para login nao podem ser vazios")
