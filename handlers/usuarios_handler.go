@@ -109,15 +109,14 @@ func (h *UsuarioHandler) CarregaFormularioNomeDisplay(c echo.Context) error {
 }
 
 func (h *UsuarioHandler) AtualizaNomeDisplay(ctx echo.Context) error {
+	// DEV only
+	usuario := h.loginAsUserForDevlopment()
+
 	nomeDisplay := ctx.FormValue("nome")
-	// TODO: atualizar o nome no back end
-	/*
-		nomeDeUsuario, err := buscaNomeDeUsuarioDaSessao(c, h.logger)
-		if err != nil {
-			return c.NoContent(http.StatusInternalServerError)
-		}
-		h.usuSvc.AtualizaNomeDisplay(nomeDeUsuario, nomeDisplay)
-	*/
+	if err := h.usuSvc.AtualizaNome(usuario.NomeDeUsuario, nomeDisplay); err != nil {
+		h.logger.Errorf("Erro ao atualizar o nome: %v", err)	
+		return ctx.NoContent(http.StatusInternalServerError)
+	}
 	return render(ctx, http.StatusOK, components.NomeLabel(nomeDisplay))
 }
 

@@ -106,6 +106,10 @@ func (us *UsuarioService) SalvalNovaImagemDeAvatar(nomeDeUsuario string, file *m
 	return imgPath, nil
 }
 
+func (us *UsuarioService) AtualizaNome(nomeDeUsuario, nome string) error {
+	return us.s.AtualizaNome(nomeDeUsuario, nome)
+}
+
 func validaDadosParaRegistro(nome string, nomeDeUsuario string, senha string) error {
 	if nome == "" || nomeDeUsuario == "" || senha == "" {
 		return errors.New("Campos obrigatórios não preenchidos")
