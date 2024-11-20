@@ -84,24 +84,16 @@ func (h *UsuarioHandler) MostraPaginaDeMinhaConta(c echo.Context) error {
 	return render(c, http.StatusOK, components.MinhaConta(u))
 }
 
-func (h *UsuarioHandler) MostraBotaoDeEntrarNaConta(c echo.Context) error {
-	/*
-		nomeDeUsuario, err := buscaNomeDeUsuarioDaSessao(c, h.logger)
-		if err != nil || nomeDeUsuario == "" {
-			return render(c, http.StatusOK, components.EntrarNaConta(false, ""))
-		}
-		usuario, err := h.usuSvc.BuscaUsuarioPorNomeDeUsuario(nomeDeUsuario)
-		if err != nil {
-			return render(c, http.StatusOK, components.EntrarNaConta(false, ""))
-		}
-		usuarioImg := "/resources/images/avatars/avatar-padrao.png"
-		if usuario.Imagem != nil {
-			usuarioImg = *usuario.Imagem
-		}
-		return render(c, http.StatusOK, components.EntrarNaConta(true, usuarioImg))
-	*/
-	u := h.loginAsUserForDevlopment()
-	return render(c, http.StatusOK, components.EntrarNaConta(true, *u.Imagem))
+func (h *UsuarioHandler) MostraBotaoDeEntrarNaConta(ctx echo.Context) error {
+	usuario, err := h.buscaUsuarioDaSessao(ctx)
+	if err != nil {
+		return render(ctx, http.StatusOK, components.EntrarNaConta(false, ""))
+	}
+	usuarioImg := "/resources/images/avatars/avatar-padrao.png"
+	if usuario.Imagem != nil {
+		usuarioImg = *usuario.Imagem
+	}
+	return render(ctx, http.StatusOK, components.EntrarNaConta(true, usuarioImg))
 }
 
 func (h *UsuarioHandler) CarregaFormularioNomeDisplay(c echo.Context) error {
@@ -109,36 +101,52 @@ func (h *UsuarioHandler) CarregaFormularioNomeDisplay(c echo.Context) error {
 }
 
 func (h *UsuarioHandler) AtualizaNomeDisplay(ctx echo.Context) error {
-	// DEV only
-	usuario := h.loginAsUserForDevlopment()
+	usuario, err := h.buscaUsuarioDaSessao(ctx)
+	if err != nil {
+		return ctx.NoContent(http.StatusInternalServerError)
+	}
 
 	nomeDisplay := ctx.FormValue("nome")
 	if err := h.usuSvc.AtualizaNome(usuario.NomeDeUsuario, nomeDisplay); err != nil {
-		h.logger.Errorf("Erro ao atualizar o nome: %v", err)	
+		h.logger.Errorf("Erro ao atualizar o nome: %v", err)
 		return ctx.NoContent(http.StatusInternalServerError)
 	}
 	return render(ctx, http.StatusOK, components.NomeLabel(nomeDisplay))
 }
 
 func (h *UsuarioHandler) UploadAvatar(ctx echo.Context) error {
-	usuario := h.loginAsUserForDevlopment()
+	usuario, err := h.buscaUsuarioDaSessao(ctx)
+	if err != nil {
+		return ctx.NoContent(http.StatusInternalServerError)
+	}
 
 	h.logger.Debugf("Iniciando upload de imagem para avatar")
-	nomeDeUsuario := usuario.NomeDeUsuario
 	const maxUploadSize = 5 * 1024 * 1024
 	file, err := ctx.FormFile("avatar-image")
 	if err != nil {
 		h.logger.Errorf("Erro ao obter o arquivo de imagem: %v", err)
 		return ctx.NoContent(http.StatusInternalServerError)
 	}
-	imgPath, err := h.usuSvc.SalvalNovaImagemDeAvatar(nomeDeUsuario, file)
+	imgPath, err := h.usuSvc.SalvalNovaImagemDeAvatar(usuario.NomeDeUsuario, file)
 
 	return render(ctx, http.StatusOK, components.ImagemAvatar(imgPath))
 }
 
 func (h *UsuarioHandler) CarregaAvatar(ctx echo.Context) error {
-	usuario := h.loginAsUserForDevlopment()
+	usuario, err := h.buscaUsuarioDaSessao(ctx)
+	if err != nil {
+		return ctx.NoContent(http.StatusInternalServerError)
+	}
 	return render(ctx, http.StatusOK, components.ImagemAvatarNav(*usuario.Imagem))
+}
+
+func (h *UsuarioHandler) buscaUsuarioDaSessao(ctx echo.Context) (model.Usuario, error) {
+	nomeDeUsuario, err := buscaNomeDeUsuarioDaSessao(ctx, h.logger)
+	if err != nil || nomeDeUsuario == "" {
+		h.logger.Errorf("Erro ao buscar o usuario da sessao: %v", err)
+		return model.Usuario{}, err
+	}
+	return h.usuSvc.BuscaUsuarioPorNomeDeUsuario(nomeDeUsuario)
 }
 
 func validaDadosParaLogin(nomeDeUsuario, senha string) error {
