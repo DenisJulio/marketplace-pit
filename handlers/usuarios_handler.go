@@ -40,8 +40,8 @@ func (h *UsuarioHandler) CadastraNovoUsuario(ctx echo.Context) error {
 		}
 		return ctx.NoContent(http.StatusInternalServerError)
 	}
-	ctx.Response().Header().Set("HX-Redirect", "/login")
-	return ctx.NoContent(http.StatusCreated)
+	ctx = enviaNotificacaoToast(ctx, toastSucesso, "Cadastro concluido", "Cadastro concluido com sucesso")
+	return ctx.NoContent(http.StatusNoContent)
 }
 
 func (h *UsuarioHandler) ValidaNomeDeUsuarioNaoExistente(ctx echo.Context) error {
