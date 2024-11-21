@@ -49,3 +49,25 @@ func buscaNomeDeUsuarioDaSessao(ctx echo.Context, logger utils.Logger) (string, 
 	logger.Debugf("Sessao encontrada para: usuario %s acessar %s", un, ctx.Request().URL.Path)
 	return un, nil
 }
+
+type tipoDeToast int
+
+const (
+	toastSucesso tipoDeToast = iota
+	toastErro
+)
+
+func (t tipoDeToast) String() string {
+	return [...]string{"toastSucesso", "toastErro"}[t]
+}
+
+func enviaNotificacaoToast(ctx echo.Context, t tipoDeToast, titulo, msg string) echo.Context {
+	ctx.Response().Header().Set("X-Toast-Titulo", titulo)
+	switch t {
+	case toastSucesso:
+		ctx.Response().Header().Set("X-Toast-Sucesso", msg)
+	case toastErro:
+		ctx.Response().Header().Set("X-Toast-Erro", msg)
+	}
+	return ctx
+}

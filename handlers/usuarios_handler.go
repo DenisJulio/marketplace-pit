@@ -28,7 +28,7 @@ func (h *UsuarioHandler) CadastraNovoUsuario(ctx echo.Context) error {
 	senha := ctx.FormValue("senha")
 
 	h.logger.Debugf("Recebendo dados para cadastro: %s, %s, %s", nome, nomeDeUsuario, senha)
-	
+
 	imagemPadrao := "/resources/images/avatars/avatar-padrao.png"
 
 	if err := h.usuSvc.RegistraNovoUsuario(nome, nomeDeUsuario, senha, imagemPadrao); err != nil {
@@ -67,7 +67,8 @@ func (h *UsuarioHandler) AutenticaUsuario(c echo.Context) error {
 	err = h.usuSvc.VerificaSegredosDeUsuario(nomeDeUsuario, senha)
 	if err != nil {
 		h.logger.Errorf("Erro ao autenticar o usuario: %s. %v", nomeDeUsuario, err)
-		render(c, http.StatusOK, components.AlertaErroAutenticacao())
+		ctx := enviaNotificacaoToast(c, toastErro, "Erro de Login", "Usuario ou senha invalidos")
+		return ctx.NoContent(http.StatusBadRequest)
 	}
 
 	if err = iniciarSessao(c, nomeDeUsuario); err != nil {

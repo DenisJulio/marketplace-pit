@@ -28,6 +28,33 @@ templ layout() {
     </nav>
   </header>
   { children... }
+  <div x-data="{ show: false, titulo: '', mensagem: '', tipo: 'erro' }" x-show="show"
+    x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4"
+    x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-300"
+    x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-4"
+    @htmx:after-request.window="
+      const mensagemSucesso = event.detail.xhr.getResponseHeader('X-Toast-Sucesso');
+      const mensagemErro = event.detail.xhr.getResponseHeader('X-Toast-Erro');
+      const tituloToast = event.detail.xhr.getResponseHeader('X-Toast-Titulo');
+      if (mensagemSucesso) {
+        mensagem = mensagemSucesso;
+        titulo = tituloToast;
+        tipo = 'sucesso';
+        show = true;
+        setTimeout(() => show = false, 3000);
+      } else if (mensagemErro) {
+        mensagem = mensagemErro;
+        titulo = tituloToast;
+        tipo = 'erro';
+        show = true;
+        setTimeout(() => show = false, 3000);
+      }
+    " class="fixed inset-x-10 bottom-4 px-4 py-4 bg-red-100 border border-red-400 text-red-700 rounded shadow-lg"
+    :class="tipo === 'sucesso' ? 'bg-green-100 border-green-400 text-green-700' : 'bg-red-100 border-red-400 text-red-700'"
+    style="display: none;">
+    <p x-text="titulo + ':'" class="font-bold"></p>
+    <p x-text="mensagem"></p>
+  </div>
   <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.14.3/dist/cdn.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/anchor@3.14.3/dist/cdn.min.js"></script>
   <script type="text/javascript" src="/resources/htmx.min.js"></script>
