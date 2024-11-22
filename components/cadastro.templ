@@ -41,7 +41,6 @@ templ PaginaDeCadastro() {
 					<form hx-post={ string(templ.URL("/cadastro")) } class="space-y-4" 
             hx-on::after-request="
               if (event.detail.xhr.status === 204) {
-                console.log('Cadastro efetuado com sucesso');
                 htmx.ajax('GET', '/login', {target: '#content', swap: 'outerHTML', select: '#content'});
               }
           ">

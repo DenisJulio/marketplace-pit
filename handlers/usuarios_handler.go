@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/DenisJulio/marketplace-pit/components"
-	"github.com/DenisJulio/marketplace-pit/model"
 	"github.com/DenisJulio/marketplace-pit/services"
 	"github.com/DenisJulio/marketplace-pit/utils"
 	"github.com/labstack/echo/v4"
@@ -14,10 +13,11 @@ import (
 type UsuarioHandler struct {
 	logger utils.Logger
 	usuSvc services.UsuarioService
+	ssSvs  services.SessaoService
 }
 
-func NovoUsuarioHandler(usuSvc services.UsuarioService, logger utils.Logger) *UsuarioHandler {
-	return &UsuarioHandler{usuSvc: usuSvc, logger: logger}
+func NovoUsuarioHandler(usuSvc services.UsuarioService, ssSvc services.SessaoService, logger utils.Logger) *UsuarioHandler {
+	return &UsuarioHandler{usuSvc: usuSvc, logger: logger, ssSvs: ssSvc}
 }
 
 func (h *UsuarioHandler) CadastraNovoUsuario(ctx echo.Context) error {
@@ -71,7 +71,7 @@ func (h *UsuarioHandler) AutenticaUsuario(c echo.Context) error {
 		return ctx.NoContent(http.StatusBadRequest)
 	}
 
-	if err = iniciarSessao(c, nomeDeUsuario); err != nil {
+	if err = h.ssSvs.IniciarSessao(c, nomeDeUsuario); err != nil {
 		h.logger.Errorf("Erro ao iniciar a sessao para o usuario: %s. %v", nomeDeUsuario, err)
 	}
 
@@ -82,19 +82,31 @@ func (h *UsuarioHandler) AutenticaUsuario(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
+func (h *UsuarioHandler) EncerraSessao(ctx echo.Context) error {
+	if err := h.ssSvs.EncerraSessao(ctx); err != nil {
+		h.logger.Errorf("Erro ao encerrar a sessao: %v", err)		
+		ctx = enviaNotificacaoToast(ctx, toastErro, "Erro", "Erro ao encerrar sessão")
+		return ctx.NoContent(http.StatusInternalServerError)
+	}	
+	ctx = enviaNotificacaoToast(ctx, toastSucesso, "Ate mais", "Sessao encerrada com sucesso")
+	return ctx.NoContent(http.StatusNoContent)
+}
+
 func (h *UsuarioHandler) MostraPaginaDeMinhaConta(ctx echo.Context) error {
-	usuario, err := h.buscaUsuarioDaSessao(ctx)
+	nomeDeUsuario, err := h.ssSvs.BuscaNomeDeUsuarioDaSessao(ctx)
 	if err != nil {
 		return render(ctx, http.StatusOK, components.EntrarNaConta(false, ""))
 	}
+	usuario, _ := h.usuSvc.BuscaUsuarioPorNomeDeUsuario(nomeDeUsuario)
 	return render(ctx, http.StatusOK, components.MinhaConta(usuario))
 }
 
 func (h *UsuarioHandler) MostraBotaoDeEntrarNaConta(ctx echo.Context) error {
-	usuario, err := h.buscaUsuarioDaSessao(ctx)
+	nomeDeUsuario, err := h.ssSvs.BuscaNomeDeUsuarioDaSessao(ctx)
 	if err != nil {
 		return render(ctx, http.StatusOK, components.EntrarNaConta(false, ""))
 	}
+	usuario, _ := h.usuSvc.BuscaUsuarioPorNomeDeUsuario(nomeDeUsuario)
 	return render(ctx, http.StatusOK, components.EntrarNaConta(true, *usuario.Imagem))
 }
 
@@ -103,10 +115,12 @@ func (h *UsuarioHandler) CarregaFormularioNomeDisplay(c echo.Context) error {
 }
 
 func (h *UsuarioHandler) AtualizaNomeDisplay(ctx echo.Context) error {
-	usuario, err := h.buscaUsuarioDaSessao(ctx)
+	nomeDeUsuario, err := h.ssSvs.BuscaNomeDeUsuarioDaSessao(ctx)
 	if err != nil {
+		h.logger.Errorf("Erro %v", err)
 		return ctx.NoContent(http.StatusInternalServerError)
 	}
+	usuario, _ := h.usuSvc.BuscaUsuarioPorNomeDeUsuario(nomeDeUsuario)
 
 	nomeDisplay := ctx.FormValue("nome")
 	if err := h.usuSvc.AtualizaNome(usuario.NomeDeUsuario, nomeDisplay); err != nil {
@@ -117,10 +131,12 @@ func (h *UsuarioHandler) AtualizaNomeDisplay(ctx echo.Context) error {
 }
 
 func (h *UsuarioHandler) UploadAvatar(ctx echo.Context) error {
-	usuario, err := h.buscaUsuarioDaSessao(ctx)
+	nomeDeUsuario, err := h.ssSvs.BuscaNomeDeUsuarioDaSessao(ctx)
 	if err != nil {
+		h.logger.Errorf("Erro %v", err)
 		return ctx.NoContent(http.StatusInternalServerError)
 	}
+	usuario, _ := h.usuSvc.BuscaUsuarioPorNomeDeUsuario(nomeDeUsuario)
 
 	h.logger.Debugf("Iniciando upload de imagem para avatar")
 	const maxUploadSize = 5 * 1024 * 1024
@@ -135,20 +151,13 @@ func (h *UsuarioHandler) UploadAvatar(ctx echo.Context) error {
 }
 
 func (h *UsuarioHandler) CarregaAvatar(ctx echo.Context) error {
-	usuario, err := h.buscaUsuarioDaSessao(ctx)
+	nomeDeUsuario, err := h.ssSvs.BuscaNomeDeUsuarioDaSessao(ctx)
 	if err != nil {
+		h.logger.Errorf("Erro %v", err)
 		return ctx.NoContent(http.StatusInternalServerError)
 	}
+	usuario, _ := h.usuSvc.BuscaUsuarioPorNomeDeUsuario(nomeDeUsuario)
 	return render(ctx, http.StatusOK, components.ImagemAvatarNav(*usuario.Imagem))
-}
-
-func (h *UsuarioHandler) buscaUsuarioDaSessao(ctx echo.Context) (model.Usuario, error) {
-	nomeDeUsuario, err := buscaNomeDeUsuarioDaSessao(ctx, h.logger)
-	if err != nil || nomeDeUsuario == "" {
-		h.logger.Errorf("Erro ao buscar o usuario da sessao: %v", err)
-		return model.Usuario{}, err
-	}
-	return h.usuSvc.BuscaUsuarioPorNomeDeUsuario(nomeDeUsuario)
 }
 
 func validaDadosParaLogin(nomeDeUsuario, senha string) error {
@@ -156,10 +165,4 @@ func validaDadosParaLogin(nomeDeUsuario, senha string) error {
 		return errors.New("Dados para login nao podem ser vazios")
 	}
 	return nil
-}
-
-// TEST apenas
-func (h *UsuarioHandler) loginAsUserForDevlopment() model.Usuario {
-	u, _ := h.usuSvc.BuscaUsuarioPorNomeDeUsuario("joa0")
-	return u
 }

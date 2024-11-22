@@ -24,7 +24,7 @@ templ layout() {
         <span class="text-md font-bold text-white">Marketplace</span>
       </div>
       <div hx-get={ string(templ.URL("/entrar-na-conta")) } hx-select="#minha-conta" hx-swap="outerHTML"
-        hx-trigger="load, reload-avatar from:body"></div>
+        hx-trigger="load"></div>
     </nav>
   </header>
   { children... }
@@ -67,7 +67,9 @@ templ layout() {
 templ EntrarNaConta(autenticado bool, imagem string) {
 
 <body>
-  <div id="minha-conta" class="flex items-center cursor-pointer sm:mr-[10vw]">
+  <div id="minha-conta" class="flex items-center cursor-pointer sm:mr-[10vw]" hx-get={
+    string(templ.URL("/entrar-na-conta")) } hx-target="#minha-conta" hx-select="#minha-conta" hx-swap="outerHTML"
+    hx-trigger="reset-menu from:body">
     if (autenticado) {
     @menuDeConta(imagem, links)
     } else {
@@ -86,13 +88,15 @@ var links = []link{
 {"/conta", "Meu Perfil"},
 {"/anuncios", "Meus Anuncios"},
 {"/ofertas", "Minhas Ofertas"},
+{"/sair", "Sair"},
 }
 
 templ menuDeConta(imagem string, links []link) {
 <div x-data="{ open: false }">
   <div x-ref="menu" @click="open = !open" class="relative w-fit flex gap-2 items-center">
-    <img src={ imagem } alt="User Profile" class="h-12 w-12 block rounded-full border border-white" hx-get={
-      string(templ.URL("/conta/avatar")) } hx-select="#imagem-avatar-nav" hx-swap="outerHTML"
+    <img id="imagem-avatar-nav" src={ imagem } alt="User Profile"
+      class="h-12 w-12 block rounded-full border border-white" hx-get={ string(templ.URL("/conta/avatar")) }
+      hx-target="#imagem-avatar-nav" hx-select="#imagem-avatar-nav" hx-swap="outerHTML"
       hx-trigger="reload-avatar from:body" />
     <i class="fa-solid fa-chevron-down text-white"></i>
   </div>
@@ -101,9 +105,14 @@ templ menuDeConta(imagem string, links []link) {
     <ul>
       for _, link := range links {
       <li hx-get={ string(templ.URL(link.path)) } hx-select="#content" hx-target="#content" hx-swap="outerHTML"
-        hx-push-url="true" @click="open = false" class="p-4 sm:px-10 text-white text-lg active:bg-slate-900 rounded-md">
-        {
-        link.label }
+        hx-push-url="true" @click="open = false" class="p-4 sm:px-10 text-white text-lg active:bg-slate-900 rounded-md"
+        @htmx:after-request="
+          if (event.detail.xhr.status === 204) {
+            htmx.ajax('GET', '/', {target: '#content', swap: 'outerHTML', select: '#content'});
+            $dispatch('reset-menu');
+          }
+        ">
+        { link.label }
       </li>
       }
     </ul>

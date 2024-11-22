@@ -73,7 +73,7 @@ func TestInsereNovoUsuario(t *testing.T) {
 
 	usuStore := NewSQLUsuarioStore(db, logger)
 	var err error
-	err = usuStore.InsereNovoUsuario("denisJulio", "Denis Julio", "123456")
+	err = usuStore.InsereNovoUsuario("denisJulio", "Denis Julio", "123456", "")
 	assert := assert.New(t)
 	assert.NoError(err)
 	_, err = usuStore.BuscaUsuarioPorNomeDeUsuario("denisJulio")

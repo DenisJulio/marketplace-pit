@@ -38,6 +38,12 @@ CREATE TABLE mensagens (
     FOREIGN KEY(remetente_id) REFERENCES usuarios (id)
 );
 
+CREATE TABLE sessoes (
+    sessao_id VARCHAR PRIMARY KEY,
+    nome_de_usuario VARCHAR NOT NULL,
+    expira_em TIMESTAMP NOT NULL
+);
+
 -- Insert into usuarios table
 INSERT INTO usuarios (nome, nome_de_usuario, senha, imagem) VALUES
 ('Pedro Santos', 'pedr0', 'pedro santos', '/resources/images/avatars/pedro-avatar.jpg'),
