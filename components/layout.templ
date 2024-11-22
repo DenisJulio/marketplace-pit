@@ -124,7 +124,7 @@ type link struct {
 
 var links = []link{
 	{"/conta", "Meu Perfil"},
-	{"/anuncios", "Meus Anuncios"},
+	{"/conta/anuncios", "Meus Anuncios"},
 	{"/ofertas", "Minhas Ofertas"},
 	{"/sair", "Sair"},
 }
@@ -136,7 +136,7 @@ templ menuDeConta(imagem string, links []link) {
 				id="imagem-avatar-nav"
 				src={ imagem }
 				alt="User Profile"
-				class="h-12 w-12 block rounded-full border border-white"
+				class="h-12 w-12 block rounded-full border border-white object-cover"
 				hx-get={ string(templ.URL("/conta/avatar")) }
 				hx-target="#imagem-avatar-nav"
 				hx-select="#imagem-avatar-nav"
