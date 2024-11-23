@@ -57,6 +57,14 @@ func (h *AnunciosHandler) MostraTelaDeNovaOferta(c echo.Context) error {
 	return render(c, http.StatusOK, components.NovaOferta(anuncio, anunciante))
 }
 
+func (h *AnunciosHandler) MostraPaginaDeAnunciosDoUsuario(ctx echo.Context) error {
+	// nomeDeUsuario, _ := buscaNomeDeUsuarioDaSessao(ctx, h.logger)
+	// busco anuncios para o usuario
+	// mostra a pagina de anuncios do usuario
+	anun := h.anunSvc.BuscaTodosAnuncios()
+	return render(ctx, http.StatusOK, components.MeusAnuncios(anun))
+}
+
 func (h *AnunciosHandler) CriaNovaOfertaParaAnuncio(c echo.Context) error {
 	var ofertanteId int
 

@@ -32,6 +32,7 @@ func (r *Router) RegisterRoutes() {
 	r.echo.GET("/conta/avatar", r.usuH.CarregaAvatar)
 	r.echo.POST("/conta/avatar", r.usuH.UploadAvatar)
 	r.echo.POST("/conta/nome", r.usuH.AtualizaNomeDisplay)
+	r.echo.GET("/conta/anuncios", r.ancH.MostraPaginaDeAnunciosDoUsuario)
 	r.echo.GET("/anuncios/:id", r.ancH.MostraDetalhesDoAnuncio)
 	r.echo.GET("/anuncios/:id/nova-oferta", r.ancH.MostraTelaDeNovaOferta, r.mid.AuthMiddleware)
 	r.echo.POST("/anuncios/:id/nova-oferta", r.ancH.CriaNovaOfertaParaAnuncio)
