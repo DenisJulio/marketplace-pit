@@ -130,7 +130,7 @@ var links = []link{
 }
 
 templ menuDeConta(imagem string, links []link) {
-	<div x-data="{ open: false }">
+	<div x-data="{ open: false }" @click.away="open = false">
 		<div x-ref="menu" @click="open = !open" class="relative w-fit flex gap-2 items-center">
 			<img
 				id="imagem-avatar-nav"
@@ -143,14 +143,17 @@ templ menuDeConta(imagem string, links []link) {
 				hx-swap="outerHTML"
 				hx-trigger="reload-avatar from:body"
 			/>
-			<i class="fa-solid fa-chevron-down text-white"></i>
+			<i
+				class="fa-solid fa-chevron-down text-white transform transition-transform duration-200"
+				:class="{ 'rotate-180': open }"
+			></i>
 		</div>
 		<div
 			id="float-menu"
 			x-ref="panel"
 			x-show="open"
 			x-anchor.bottom-end.offset.10="$refs.menu"
-			class="w-[60vw] sm:w-fit sm:max-w-md p-2 rounded-md border  border-slate-300 bg-slate-700 shadow-lg"
+			class="w-[60vw] sm:w-fit sm:max-w-md p-2 rounded-md border border-slate-300 bg-slate-700 shadow-lg"
 		>
 			<ul>
 				for _, link := range links {
@@ -163,11 +166,11 @@ templ menuDeConta(imagem string, links []link) {
 						@click="open = false"
 						class="p-4 sm:px-10 text-white text-lg active:bg-slate-900 rounded-md"
 						@htmx:after-request="
-          if (event.detail.xhr.status === 204) {
-            htmx.ajax('GET', '/', {target: '#content', swap: 'outerHTML', select: '#content'});
-            $dispatch('reset-menu');
-          }
-        "
+							if (event.detail.xhr.status === 204) {
+								htmx.ajax('GET', '/', {target: '#content', swap: 'outerHTML', select: '#content'});
+								$dispatch('reset-menu');
+							}
+						"
 					>
 						{ link.label }
 					</li>

@@ -11,19 +11,18 @@ import (
 )
 
 type Middleware struct {
-	ssVs  services.SessaoService
+	ssVs   services.SessaoService
 	logger utils.Logger
 }
 
-func NovoMiddleware(ssVs services.SessaoService,logger utils.Logger) *Middleware {
-	return &Middleware{ssVs: ssVs,logger: logger}
+func NovoMiddleware(ssVs services.SessaoService, logger utils.Logger) *Middleware {
+	return &Middleware{ssVs: ssVs, logger: logger}
 }
 
 func (m *Middleware) AuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		m.logger.Debugf("Iniciando autenticacao para: %s", c.Request().URL.Path)
 
-		// nomeDeUsuario, err := buscaNomeDeUsuarioDaSessao(c, m.logger)
 		nomeDeUsuario, err := m.ssVs.BuscaNomeDeUsuarioDaSessao(c)
 		if err != nil || nomeDeUsuario == "" {
 			m.logger.Debugf("Request nao autenticado para: %s", c.Request().URL.Path)
