@@ -11,36 +11,37 @@ templ MeusAnuncios(anuncios []model.Anuncio) {
 		<main id="content" hx-history-elt>
 			<div class="flex justify-center">
 				<div class="mt-6 mx-4 w-full sm:w-[65vw] lg:max-w-4xl">
-					<!-- Anúncios List -->
-					<div class="flex gap-2 flex-col items-stretch lg:grid lg:grid-cols-2 lg:gap-4 pb-20">
-						for _, anuncio := range anuncios {
-							<div
-								class="flex items-center border border-gray-300 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow bg-white"
-							>
-								<img src={ *anuncio.Imagem } alt="{anuncio.Nome}" class="w-16 h-16 object-cover rounded-lg mr-4"/>
-								<div class="flex flex-col">
-									<span class="font-semibold text-lg text-gray-800">{ anuncio.Nome }</span>
-									<span class="text-sm text-gray-500">Publicado em: { anuncio.CriadoEm.Format("02/01/2006") }</span>
-									<span class="text-sm text-gray-700 font-medium mt-1">{ utils.FormataMoedaBR(anuncio.Valor) }</span>
+					if len(anuncios) == 0 {
+						<div class="text-center py-20">
+							<p class="text-gray-500 text-lg">Você não tem nenhum anúncio publicado ainda.</p>
+						</div>
+					} else {
+						<div class="flex gap-2 flex-col items-stretch lg:grid lg:grid-cols-2 lg:gap-4 pb-20">
+							for _, anuncio := range anuncios {
+								<div
+									class="flex items-center border border-gray-300 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow bg-white"
+								>
+									<img src={ *anuncio.Imagem } alt="{anuncio.Nome}" class="w-16 h-16 object-cover rounded-lg mr-4"/>
+									<div class="flex flex-col">
+										<span class="font-semibold text-lg text-gray-800">{ anuncio.Nome }</span>
+										<span class="text-sm text-gray-500">Publicado em: { anuncio.CriadoEm.Format("02/01/2006") }</span>
+										<span class="text-sm text-gray-700 font-medium mt-1">{ utils.FormataMoedaBR(anuncio.Valor) }</span>
+									</div>
 								</div>
-							</div>
-						}
-					</div>
-					<!-- Floating Action Button -->
-					<a
-						href="/anuncios/novo"
-						class="fixed bottom-4 right-4 flex gap-2 items-center bg-sky-600 text-white p-4 rounded-full shadow-lg hover:bg-sky-700 font-bold transition-colors text-sm uppercase"
+							}
+						</div>
+					}
+					<button
+						hx-get={ string(templ.URL("/conta/anuncios/novo")) }
+            hx-target="#content"
+            hx-select="#content"
+            hx-swap="outerHTML"
+            hx-push-url="true"
+						class="fixed bottom-4 right-4 flex gap-2 items-center btn-primary"
 					>
-						<!-- Icon -->
-						<!--
-						<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-						</svg>
-            -->
 						<i class="fa-solid fa-plus"></i>
-						<!-- Text -->
-						<span>Novo Anuncio</span>
-					</a>
+						<span>Novo Anúncio</span>
+					</button>
 				</div>
 			</div>
 		</main>

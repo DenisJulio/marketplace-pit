@@ -1,39 +1,76 @@
 package components
 
 import (
-"fmt"
-"github.com/DenisJulio/marketplace-pit/model"
-"github.com/DenisJulio/marketplace-pit/utils"
+	"fmt"
+	"github.com/DenisJulio/marketplace-pit/model"
+	"github.com/DenisJulio/marketplace-pit/utils"
 )
 
 templ DetalhesDoAnuncio(anuncio model.Anuncio) {
-@layout() {
-<main id="content" hx-history-elt>
-  <div class="flex justify-center">
-    <div class="p-4 w-full sm:w-[65vw] md:w-[80vw] lg:max-w-4xl">
-      <h1 class="text-4xl font-bold mb-4">{ anuncio.Nome }</h1>
-      <div class="flex flex-col gap-4 lg:grid lg:grid-cols-3">
-        <div id="foto-produto" class="w-full lg:col-span-2">
-          <img src={ *anuncio.Imagem } alt="Product" class="h-96 w-full object-cover rounded-lg" />
-        </div>
-        <div id="card-oferta"
-          class="p-4 h-fit border-solid border border-slate-300 rounded-md md:w-[45vw] md:self-end lg:self-start lg:w-auto lg:col-end-4">
-          <p class="text-gray-600 text-sm mb-2">Criado em { utils.FormataDataLocaleBR(anuncio.CriadoEm) }</p>
-          <p class="text-2xl font-bold mb-2">{ utils.FormataMoedaBR(anuncio.Valor) }</p>
-          <button id="btn-nova-oferta"
-            class="mt-4 w-full rounded-lg p-4 uppercase bg-blue-500 hover:bg-blue-700 text-white font-bold text-xs"
-            hx-get={ string(templ.URL(fmt.Sprintf("/anuncios/%d/nova-oferta", anuncio.ID))) } hx-select="#content"
-            hx-target="#content" hx-swap="outerHTML show:window:top" hx-push-url="true">
-            Fazer Oferta
-          </button>
-        </div>
-        <div class="mt-4 p-2 col-span-3">
-          <h3 class="text-xl">Descrição do produto:</h3>
-          <p class="text-gray-600 text-lg mt-4">{ *anuncio.Descricao }</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</main>
-}
+  <title>{ anuncio.Nome }</title>
+	@layout() {
+		<main id="content" hx-history-elt>
+			<div class="flex justify-center">
+				<div class="p-4 w-full sm:w-[65vw] md:w-[80vw] lg:max-w-4xl">
+					<h1 class="text-2xl font-bold text-gray-800 mb-4">{ anuncio.Nome }</h1>
+					<div class="flex flex-col gap-6">
+						<div id="foto-produto" class="w-full lg:col-span-2" x-data="{ showModal: false }" @keydown.escape.window="showModal = false">
+							<!-- Thumbnail Image -->
+							<img
+								src={ *anuncio.Imagem }
+								alt="Product"
+								class="h-96 w-full object-cover rounded-lg cursor-pointer"
+								@click="showModal = true"
+							/>
+							<!-- Modal -->
+							<div
+								x-show="showModal"
+								class="fixed inset-0 bg-black bg-opacity-95 flex justify-center items-center z-50"
+								x-cloak
+							>
+								<div class="relative bg-white rounded-lg overflow-hidden" @click.stop>
+									<!-- Expanded Image -->
+									<img
+										src={ *anuncio.Imagem }
+										@click.away="showModal = false"
+										alt="Product"
+										class="w-auto max-w-screen max-h-screen object-contain"
+									/>
+									<!-- Close Button -->
+									<button
+										@click="showModal = false"
+										class="absolute grid w-6 h-6 top-2 right-2 bg-red-600 text-white rounded-full font-bold hover:bg-red-800"
+									>
+										<i class="place-self-center fa-solid fa-xmark"></i>
+									</button>
+								</div>
+							</div>
+						</div>
+						<div
+							id="card-oferta"
+							class="p-4 h-fit border-solid border border-slate-300 rounded-md md:w-[45vw] md:max-w-sm md:self-end"
+						>
+							<p class="text-gray-600 text-sm mb-2">Criado em { utils.FormataDataLocaleBR(anuncio.CriadoEm) }</p>
+							<p class="text-3xl text-gray-800 mb-2">{ utils.FormataMoedaBR(anuncio.Valor) }</p>
+							<button
+								id="btn-nova-oferta"
+								class="mt-4 w-full btn-primary"
+								hx-get={ string(templ.URL(fmt.Sprintf("/anuncios/%d/nova-oferta", anuncio.ID))) }
+								hx-select="#content"
+								hx-target="#content"
+								hx-swap="outerHTML show:window:top"
+								hx-push-url="true"
+							>
+								Fazer Oferta
+							</button>
+						</div>
+						<div class="md:p-6 col-span-3">
+							<h3 class="text-xl">Descrição do produto:</h3>
+							<p class="text-gray-600 text-lg mt-4">{ *anuncio.Descricao }</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</main>
+	}
 }
