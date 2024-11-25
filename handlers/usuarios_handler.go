@@ -6,6 +6,7 @@ import (
 
 	"github.com/DenisJulio/marketplace-pit/components"
 	"github.com/DenisJulio/marketplace-pit/services"
+	"github.com/DenisJulio/marketplace-pit/store"
 	"github.com/DenisJulio/marketplace-pit/utils"
 	"github.com/labstack/echo/v4"
 )
@@ -14,10 +15,11 @@ type UsuarioHandler struct {
 	logger utils.Logger
 	usuSvc services.UsuarioService
 	ssSvs  services.SessaoService
+	imgSvs services.ImagemService
 }
 
-func NovoUsuarioHandler(usuSvc services.UsuarioService, ssSvc services.SessaoService, logger utils.Logger) *UsuarioHandler {
-	return &UsuarioHandler{usuSvc: usuSvc, logger: logger, ssSvs: ssSvc}
+func NovoUsuarioHandler(usuSvc services.UsuarioService, ssSvc services.SessaoService, imgSvc services.ImagemService, logger utils.Logger) *UsuarioHandler {
+	return &UsuarioHandler{usuSvc: usuSvc, logger: logger, imgSvs: imgSvc, ssSvs: ssSvc}
 }
 
 func (h *UsuarioHandler) CadastraNovoUsuario(ctx echo.Context) error {
@@ -84,10 +86,10 @@ func (h *UsuarioHandler) AutenticaUsuario(c echo.Context) error {
 
 func (h *UsuarioHandler) EncerraSessao(ctx echo.Context) error {
 	if err := h.ssSvs.EncerraSessao(ctx); err != nil {
-		h.logger.Errorf("Erro ao encerrar a sessao: %v", err)		
+		h.logger.Errorf("Erro ao encerrar a sessao: %v", err)
 		ctx = enviaNotificacaoToast(ctx, toastErro, "Erro", "Erro ao encerrar sessão")
 		return ctx.NoContent(http.StatusInternalServerError)
-	}	
+	}
 	ctx = enviaNotificacaoToast(ctx, toastSucesso, "Ate mais", "Sessao encerrada com sucesso")
 	return ctx.NoContent(http.StatusNoContent)
 }
@@ -131,21 +133,19 @@ func (h *UsuarioHandler) AtualizaNomeDisplay(ctx echo.Context) error {
 }
 
 func (h *UsuarioHandler) UploadAvatar(ctx echo.Context) error {
-	nomeDeUsuario, err := h.ssSvs.BuscaNomeDeUsuarioDaSessao(ctx)
-	if err != nil {
-		h.logger.Errorf("Erro %v", err)
-		return ctx.NoContent(http.StatusInternalServerError)
-	}
+	nomeDeUsuario, _ := h.ssSvs.BuscaNomeDeUsuarioDaSessao(ctx)
 	usuario, _ := h.usuSvc.BuscaUsuarioPorNomeDeUsuario(nomeDeUsuario)
 
 	h.logger.Debugf("Iniciando upload de imagem para avatar")
+
 	const maxUploadSize = 5 * 1024 * 1024
 	file, err := ctx.FormFile("avatar-image")
 	if err != nil {
 		h.logger.Errorf("Erro ao obter o arquivo de imagem: %v", err)
 		return ctx.NoContent(http.StatusInternalServerError)
 	}
-	imgPath, err := h.usuSvc.SalvalNovaImagemDeAvatar(usuario.NomeDeUsuario, file)
+	imgPath, err := h.imgSvs.SalvalNovaImagem(store.ImagemDeAvatar, file)
+	h.usuSvc.AtualizaImagemDeUsuario(usuario.NomeDeUsuario, imgPath)
 
 	return render(ctx, http.StatusOK, components.ImagemAvatar(imgPath))
 }

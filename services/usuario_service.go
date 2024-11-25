@@ -2,12 +2,6 @@ package services
 
 import (
 	"errors"
-	"fmt"
-	"io"
-	"mime/multipart"
-	"os"
-	"path/filepath"
-	"time"
 
 	"github.com/DenisJulio/marketplace-pit/model"
 	"github.com/DenisJulio/marketplace-pit/store"
@@ -68,46 +62,12 @@ func (us *UsuarioService) VerificaSegredosDeUsuario(nomeDeUsuario, senha string)
 	return nil
 }
 
-func (us *UsuarioService) SalvalNovaImagemDeAvatar(nomeDeUsuario string, file *multipart.FileHeader) (string, error) {
-	src, err := file.Open()
-	if err != nil {
-		us.logger.Errorf("Erro ao abrir o arquivo de imagem: %v", err)
-		return "", err
-	}
-	defer src.Close()
-
-	const uploadDir = "public/static/images/avatars"
-	if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
-		us.logger.Errorf("Erro ao criar o diretorio de upload: %v", err)
-		return "", err
-	}
-	extension := filepath.Ext(file.Filename)
-	filename := fmt.Sprintf("%d%s", time.Now().UnixNano(), extension)
-	filePath := filepath.Join(uploadDir, filename)
-	us.logger.Debugf("Arquivo sera salvo em: %s", filePath)
-
-	// Create the file on the filesystem
-	dst, err := os.Create(filePath)
-	if err != nil {
-		us.logger.Errorf("Erro ao criar o arquivo de imagem: %v", err)
-		return "", err
-	}
-	defer dst.Close()
-
-	// Copy the uploaded file's content to the new file
-	if _, err := io.Copy(dst, src); err != nil {
-		us.logger.Errorf("Erro ao copiar o arquivo de imagem para o local: %v", err)
-		return "", err
-	}
-	imgPath := fmt.Sprintf("/resources/images/avatars/%s", filename)
-	if err := us.s.AtualizaImagemDeUsuario(nomeDeUsuario, imgPath); err != nil {
-		return "", err
-	}
-	return imgPath, nil
-}
-
 func (us *UsuarioService) AtualizaNome(nomeDeUsuario, nome string) error {
 	return us.s.AtualizaNome(nomeDeUsuario, nome)
+}
+
+func (us *UsuarioService) AtualizaImagemDeUsuario(nomeDeUsuario, imagem string) error {
+	return us.s.AtualizaImagemDeUsuario(nomeDeUsuario, imagem)
 }
 
 func validaDadosParaRegistro(nome string, nomeDeUsuario string, senha string) error {
