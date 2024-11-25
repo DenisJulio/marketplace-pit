@@ -139,6 +139,7 @@ templ ImagemAvatarNav(imagem string) {
 			alt="User Profile"
 			class="h-12 w-12 block rounded-full border border-white object-cover"
 			hx-get={ string(templ.URL("/conta/avatar")) }
+			hx-target="#imagem-avatar-nav"
 			hx-select="#imagem-avatar-nav"
 			hx-swap="outerHTML"
 			hx-trigger="reload-avatar from:body"

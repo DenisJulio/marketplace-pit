@@ -66,7 +66,7 @@ func (us *UsuarioService) AtualizaNome(nomeDeUsuario, nome string) error {
 	return us.s.AtualizaNome(nomeDeUsuario, nome)
 }
 
-func (us *UsuarioService) AtualizaImagemDeUsuario(nomeDeUsuario, imagem string) error {
+func (us *UsuarioService) AtualizaImagemDeUsuario(nomeDeUsuario, imagem string) (string, error) {
 	return us.s.AtualizaImagemDeUsuario(nomeDeUsuario, imagem)
 }
 

@@ -25,3 +25,13 @@ func (is *ImagemService) SalvalNovaImagem(tipoDeImagem store.TipoDeImagem, file 
 	is.logger.Debugf("Arquivo de imagem salvo com sucesso e disponivel em: %s", imgPath)
 	return imgPath, nil
 }
+
+func (is *ImagemService) RemoveImagem(tipoDeImagem store.TipoDeImagem, nomeDoArquivo string) error {
+	err := is.s.RemoveImagem(tipoDeImagem, nomeDoArquivo)
+	if err != nil {
+		is.logger.Errorf("Falha ao remover o arquivo de imagem: %v", tipoDeImagem, err)
+		return err
+	}
+	is.logger.Debugf("Arquivo de imagem removido com sucesso: %s", nomeDoArquivo)
+	return nil
+}

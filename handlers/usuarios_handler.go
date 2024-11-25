@@ -31,9 +31,7 @@ func (h *UsuarioHandler) CadastraNovoUsuario(ctx echo.Context) error {
 
 	h.logger.Debugf("Recebendo dados para cadastro: %s, %s, %s", nome, nomeDeUsuario, senha)
 
-	imagemPadrao := "/resources/images/avatars/avatar-padrao.png"
-
-	if err := h.usuSvc.RegistraNovoUsuario(nome, nomeDeUsuario, senha, imagemPadrao); err != nil {
+	if err := h.usuSvc.RegistraNovoUsuario(nome, nomeDeUsuario, senha, store.AvatarPadrao); err != nil {
 		if errors.Is(err, services.ErrDadosParaRegistroInvalidos) {
 			return ctx.NoContent(http.StatusBadRequest)
 		}
@@ -145,7 +143,11 @@ func (h *UsuarioHandler) UploadAvatar(ctx echo.Context) error {
 		return ctx.NoContent(http.StatusInternalServerError)
 	}
 	imgPath, err := h.imgSvs.SalvalNovaImagem(store.ImagemDeAvatar, file)
-	h.usuSvc.AtualizaImagemDeUsuario(usuario.NomeDeUsuario, imgPath)
+	oldImg, _ := h.usuSvc.AtualizaImagemDeUsuario(usuario.NomeDeUsuario, imgPath)
+
+	if oldImg != store.AvatarPadrao {
+		h.imgSvs.RemoveImagem(store.ImagemDeAvatar, oldImg)
+	}
 
 	return render(ctx, http.StatusOK, components.ImagemAvatar(imgPath))
 }

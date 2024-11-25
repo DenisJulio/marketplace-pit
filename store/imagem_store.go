@@ -6,6 +6,7 @@ import (
 	"mime/multipart"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/DenisJulio/marketplace-pit/utils"
@@ -16,10 +17,12 @@ type TipoDeImagem string
 const (
 	ImagemDeAvatar  TipoDeImagem = "avatars"
 	ImagemDeAnuncio TipoDeImagem = "anuncios"
+	AvatarPadrao    string       = "/resources/images/avatars/avatar-padrao.png"
 )
 
 type ImagemStore interface {
 	SalvaImagem(tipoDeImagem TipoDeImagem, arquivo *multipart.FileHeader) (string, error)
+	RemoveImagem(tipoDeImagem TipoDeImagem, nomeDoArquivo string) error
 }
 
 type FileSystemImagemStore struct {
@@ -72,4 +75,16 @@ func (fs *FileSystemImagemStore) SalvaImagem(tipoDeImagem TipoDeImagem, arquivo 
 	}
 
 	return filepath.Join(publicPath, filename), nil
+}
+
+func (fs *FileSystemImagemStore) RemoveImagem(tipoDeImagem TipoDeImagem, nomeDoArquivo string) error {
+	relativePath := strings.TrimPrefix(nomeDoArquivo, fs.BasePublicPath)
+	fileName := filepath.Base(relativePath)
+	filePath := filepath.Join(fs.BaseUploadDir, string(tipoDeImagem), fileName)
+
+	if err := os.Remove(filePath); err != nil {
+		fs.logger.Errorf("Erro ao remover o arquivo de imagem: %v", err)
+		return err
+	}
+	return nil
 }
