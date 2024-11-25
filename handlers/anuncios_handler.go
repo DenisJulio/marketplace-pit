@@ -24,6 +24,7 @@ func NewAnunciosHandler(anunSvc services.AnuncioServices, usuSvc services.Usuari
 
 func (h *AnunciosHandler) MostraTelaDeAnuncios(c echo.Context) error {
 	anuncios := h.anunSvc.BuscaTodosAnuncios()
+	c.Response().Header().Set("HX-Push-Url", "/")
 	return render(c, http.StatusOK, components.AnunciosPage(anuncios))
 }
 
@@ -61,8 +62,12 @@ func (h *AnunciosHandler) MostraPaginaDeAnunciosDoUsuario(ctx echo.Context) erro
 	// nomeDeUsuario, _ := buscaNomeDeUsuarioDaSessao(ctx, h.logger)
 	// busco anuncios para o usuario
 	// mostra a pagina de anuncios do usuario
-	anun := h.anunSvc.BuscaTodosAnuncios()
+	anun := []model.Anuncio{}
 	return render(ctx, http.StatusOK, components.MeusAnuncios(anun))
+}
+
+func (h *AnunciosHandler) MostraPaginaDeCriacaoDeNovoAnuncio(ctx echo.Context) error {
+	return render(ctx, http.StatusOK, components.NovoAnuncio())
 }
 
 func (h *AnunciosHandler) CriaNovaOfertaParaAnuncio(c echo.Context) error {

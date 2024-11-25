@@ -1,0 +1,85 @@
+package components
+
+templ NovoAnuncio() {
+	@layout() {
+		<main id="content" hx-history-elt>
+			<div class="flex justify-center">
+				<div class="p-4 w-full sm:w-[65vw] md:w-[80vw] lg:max-w-4xl">
+					<h1 class="mb-4 main-heading">Criar Novo Anúncio</h1>
+					<form hx-post="/anuncios/novo" enctype="multipart/form-data" class="space-y-4" hx-target="#content" hx-swap="innerHTML">
+						<div>
+							<label for="nome" class="block text-sm font-medium text-gray-700">Nome do Anúncio</label>
+							<input type="text" id="nome" name="nome" required class="mt-1 p-2 w-full border rounded-md" placeholder="Título do anúncio"/>
+						</div>
+						<div
+							x-data="{
+                valor: '0,00',
+                formatMonetaryValue(event) {
+                  const input = event.target.value.replace(/\D/g, '');
+                  const formattedValue = (parseInt(input || '0', 10) / 100).toFixed(2).replace('.', ',');
+                  this.valor = formattedValue;
+                }
+              }"
+						>
+							<label for="valor" class="block text-sm font-medium text-gray-700">Valor (R$)</label>
+								<input
+									type="text"
+									id="valor"
+									name="valor"
+									x-model="valor"
+									@input="formatMonetaryValue($event)"
+									class="mt-1 p-2 w-full border rounded-md"
+									placeholder="0,00"
+								/>
+						</div>
+						<div>
+							<label for="descricao" class="block text-sm font-medium text-gray-700">Descrição</label>
+							<textarea id="descricao" name="descricao" rows="4" class="mt-1 p-2 w-full border rounded-md" placeholder="Descrição detalhada do anúncio"></textarea>
+						</div>
+						<div
+							x-data="{
+                imageUrl: null,
+                updatePreview(event) {
+                  const file = event.target.files[0];
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                      this.imageUrl = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                  } else {
+                    this.imageUrl = null;
+                  }
+                }
+              }"
+						>
+							<label
+								for="imagem"
+								class="inline-flex items-center justify-center gap-2 p-4 border-2 text-xs font-bold border-blue-500 text-blue-500 bg-white rounded-md cursor-pointer hover:bg-blue-100 transition uppercase"
+							>
+								<i class="fas fa-upload"></i>
+								<span>
+									Escolher Imagem
+								</span>
+							</label>
+							<div class="mt-2">
+								<img x-show="imageUrl" :src="imageUrl" class="w-full h-auto max-h-64 object-cover border rounded-md" alt="Pré-visualização da imagem"/>
+							</div>
+							<input
+								type="file"
+								id="imagem"
+								name="imagem"
+								accept="image/*"
+								@change="updatePreview($event)"
+								class="hidden"
+							/>
+						</div>
+						<div>
+							<button type="submit" class="mt-4 w-full btn-primary">Criar Anúncio</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</main>
+	}
+}

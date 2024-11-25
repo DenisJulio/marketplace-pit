@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-.btn-primary {
-  @apply bg-sky-600 text-white p-4 rounded-lg shadow-lg hover:bg-sky-700 font-bold transition-colors text-xs uppercase;
+@layer components {
+  .btn-primary {
+    @apply bg-sky-600 text-white p-4 rounded-lg shadow-lg hover:bg-sky-700 font-bold transition-colors text-xs uppercase;
+  }
+
+  .main-heading {
+    @apply text-2xl text-gray-800;
+  }
 }
