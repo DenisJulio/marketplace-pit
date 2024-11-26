@@ -4,3 +4,16 @@ package-lock.json
 components/*_templ.go
 components/*_templ.txt
 public/static/style.css
+public/static/images/avatars/*
+public/static/images/anuncios/*
+
+!public/static/images/avatars/avatar-padrao.png
+!public/static/images/avatars/joao-avatar.jpg
+!public/static/images/avatars/maria-avatar.jpg
+!public/static/images/avatars/pedro-avatar.jpg
+
+!public/static/images/anuncios/anuncio-camisa.avif
+!public/static/images/anuncios/anuncio-carro.jpg
+!public/static/images/anuncios/anuncio-livro.jpg
+!public/static/images/anuncios/anuncio-moto.jpg
+!public/static/images/anuncios/anuncio-tenis.webp
