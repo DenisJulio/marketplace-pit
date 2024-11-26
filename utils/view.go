@@ -20,45 +20,31 @@ func FormataDataLocaleBR(date time.Time) string {
 }
 
 func FormataTempoRelativo(date time.Time) string {
-	now := time.Now()
+	now := time.Now().Add(-3 * time.Hour)
 	duration := now.Sub(date)
 
-	years := int(duration.Hours() / 24 / 365)
-	months := int(duration.Hours() / 24 / 30)
-	days := int(duration.Hours() / 24)
-	hours := int(duration.Hours())
-	minutes := int(duration.Minutes())
-	seconds := int(duration.Seconds())
-
-	if years > 0 {
-		if years == 1 {
-			return "1 ano"
-		}
-		return fmt.Sprintf("%d anos", years)
-	} else if months > 0 {
-		if months == 1 {
-			return "1 mês"
-		}
-		return fmt.Sprintf("%d meses", months)
-	} else if days > 0 {
-		if days == 1 {
-			return "1 dia"
-		}
-		return fmt.Sprintf("%d dias", days)
-	} else if hours > 0 {
-		if hours == 1 {
-			return "1 hora"
-		}
-		return fmt.Sprintf("%d horas", hours)
-	} else if minutes > 0 {
-		if minutes == 1 {
-			return "1 minuto"
-		}
-		return fmt.Sprintf("%d minutos", minutes)
-	} else {
-		if seconds == 1 {
-			return "1 segundo"
-		}
-		return fmt.Sprintf("%d segundos", seconds)
+	if years := int(duration.Hours() / 24 / 365); years > 0 {
+		return pluralize(years, "ano", "anos")
 	}
+	if months := int(duration.Hours() / 24 / 30); months > 0 {
+		return pluralize(months, "mês", "meses")
+	}
+	if days := int(duration.Hours() / 24); days > 0 {
+		return pluralize(days, "dia", "dias")
+	}
+	if hours := int(duration.Hours()); hours > 0 {
+		return pluralize(hours, "hora", "horas")
+	}
+	if minutes := int(duration.Minutes()); minutes > 0 {
+		return pluralize(minutes, "minuto", "minutos")
+	}
+	seconds := int(duration.Seconds())
+	return pluralize(seconds, "segundo", "segundos")
+}
+
+func pluralize(value int, singular, plural string) string {
+	if value == 1 {
+		return fmt.Sprintf("1 %s", singular)
+	}
+	return fmt.Sprintf("%d %s", value, plural)
 }
