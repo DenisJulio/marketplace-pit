@@ -32,7 +32,7 @@ func main() {
 	ofertaService := services.NewOfertaService(*&ofertaStore)
 	sessaoService := services.NovaSessaoService(*sessaoStore, logger)
 	imagemService := services.NovoImagemService(fsStore, logger)
-	anuncioHandler := handlers.NewAnunciosHandler(*anuncioService, *usuarioService, *ofertaService, logger)
+	anuncioHandler := handlers.NewAnunciosHandler(*anuncioService, *usuarioService, *ofertaService, *imagemService, *sessaoService, logger)
 	authHandler := handlers.NovoAuthHandler(logger)
 	usuarioHandler := handlers.NovoUsuarioHandler(*usuarioService, *sessaoService, *imagemService, logger)
 	mid := handlers.NovoMiddleware(*sessaoService, logger)

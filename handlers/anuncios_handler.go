@@ -4,10 +4,12 @@ import (
 	"mime/multipart"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/DenisJulio/marketplace-pit/components"
 	"github.com/DenisJulio/marketplace-pit/model"
 	"github.com/DenisJulio/marketplace-pit/services"
+	"github.com/DenisJulio/marketplace-pit/store"
 	"github.com/DenisJulio/marketplace-pit/utils"
 	"github.com/labstack/echo/v4"
 )
@@ -17,11 +19,12 @@ type AnunciosHandler struct {
 	usuSvc  services.UsuarioService
 	oftSvc  services.OfertaService
 	imgSvc  services.ImagemService
+	ssSvc   services.SessaoService
 	logger  utils.Logger
 }
 
-func NewAnunciosHandler(anunSvc services.AnuncioServices, usuSvc services.UsuarioService, oftSvc services.OfertaService, logger utils.Logger) *AnunciosHandler {
-	return &AnunciosHandler{anunSvc: anunSvc, usuSvc: usuSvc, oftSvc: oftSvc, logger: logger}
+func NewAnunciosHandler(anunSvc services.AnuncioServices, usuSvc services.UsuarioService, oftSvc services.OfertaService, imgSvc services.ImagemService, ssSvc services.SessaoService, logger utils.Logger) *AnunciosHandler {
+	return &AnunciosHandler{anunSvc: anunSvc, usuSvc: usuSvc, oftSvc: oftSvc, imgSvc: imgSvc, ssSvc: ssSvc, logger: logger}
 }
 
 func (h *AnunciosHandler) MostraTelaDeAnuncios(c echo.Context) error {
@@ -95,51 +98,64 @@ func (h *AnunciosHandler) CriaNovaOfertaParaAnuncio(c echo.Context) error {
 }
 
 func (h *AnunciosHandler) CriaNovoAnuncio(c echo.Context) error {
-	// Validate the form
 	nome, valor, descricao, imagem, err := h.validarFormularioDeAnuncio(c)
+
+	h.logger.Debugf("Nome: %s, Valor: %f, Descricao: %s, Imagem: %s", nome, valor, descricao, imagem.Filename)
 
 	if err != nil {
 		h.logger.Errorf("Erro ao obter o arquivo de imagem: %v", err)
 		return c.String(http.StatusBadRequest, "Erro ao obter o arquivo de imagem")
 	}
 
-	// Save the image and get the public path
-	imagemPath, err := h.anunSvc.SalvaImagem(imagem)
+	imagemPath, err := h.imgSvc.SalvalNovaImagem(store.ImagemDeAnuncio, imagem)
 	if err != nil {
 		h.logger.Errorf("Erro ao salvar a imagem: %v", err)
 		return c.String(http.StatusInternalServerError, "Erro ao salvar a imagem")
 	}
 
+	nomeDeUsuario, _ := h.ssSvc.BuscaNomeDeUsuarioDaSessao(c)
+	usuario, _ := h.usuSvc.BuscaUsuarioPorNomeDeUsuario(nomeDeUsuario)
+
 	// Create the new anuncio
-	anuncio := model.NewAnuncio(nome, valor, descricao, imagemPath)
+	anuncio := model.NovoAnuncio(nome, usuario.ID, valor, &descricao, &imagemPath)
 	if err := h.anunSvc.CriaNovoAnuncio(anuncio); err != nil {
 		h.logger.Errorf("Erro ao criar o novo anuncio: %v", err)
 		return c.String(http.StatusInternalServerError, "Erro ao criar o novo anuncio")
 	}
 
 	// Redirect to the anuncios page
-	return c.Redirect(http.StatusSeeOther, "/anuncios")
+	h.logger.Debugf("Anuncio criado com sucesso: %s", nome)
+	return c.NoContent(http.StatusNoContent)
 }
 
 func (h *AnunciosHandler) validarFormularioDeAnuncio(c echo.Context) (string, float64, string, *multipart.FileHeader, error) {
 	nome := c.FormValue("nome")
-	valor, _ := strconv.ParseFloat(c.FormValue("valor"), 64)
+	valorStr := c.FormValue("valor")
+	valorStr = strings.ReplaceAll(valorStr, ",", ".")
+	valor, _ := strconv.ParseFloat(valorStr, 64)
 	descricao := c.FormValue("descricao")
 	imagem, err := c.FormFile("imagem")
 
+	h.logger.Debugf("Nome: %s, Valor: %f, Descricao: %s, Imagem: %s", nome, valor, descricao, imagem.Filename)
+
 	if nome == "" {
+		h.logger.Errorf("O campo nome não pode estar vazio")
 		return "", 0, "", nil, echo.NewHTTPError(http.StatusBadRequest, "O campo nome não pode estar vazio")
 	}
 	if valor == 0 {
+		h.logger.Errorf("O valor não pode ser zero")
 		return "", 0, "", nil, echo.NewHTTPError(http.StatusBadRequest, "O valor não pode ser zero")
 	}
 	if descricao == "" {
+		h.logger.Errorf("O campo descrição não pode estar vazio")
 		return "", 0, "", nil, echo.NewHTTPError(http.StatusBadRequest, "O campo descrição não pode estar vazio")
 	}
 	if err != nil {
+		h.logger.Errorf("O campo imagem não pode estar vazio")
 		return "", 0, "", nil, echo.NewHTTPError(http.StatusBadRequest, "O campo imagem não pode estar vazio")
 	}
 	if imagem.Size > 10*1024*1024 { // 10 MB
+		h.logger.Errorf("O tamanho da imagem não pode ser maior que 10 MB")
 		return "", 0, "", nil, echo.NewHTTPError(http.StatusBadRequest, "O tamanho da imagem não pode ser maior que 10 MB")
 	}
 	return nome, valor, descricao, imagem, nil

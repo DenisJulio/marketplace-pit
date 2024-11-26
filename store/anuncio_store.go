@@ -10,6 +10,7 @@ import (
 type AnuncioStore interface {
 	BuscaTodosAnuncios() ([]model.Anuncio, error)
 	BuscaAnuncioPorID(id int) (model.Anuncio, error)
+	SalvaNovoAnuncio(anuncio model.Anuncio) error
 }
 
 type SQLAnuncioStore struct {
@@ -55,4 +56,18 @@ func (s *SQLAnuncioStore) BuscaAnuncioPorID(id int) (model.Anuncio, error) {
 		return model.Anuncio{}, err
 	}
 	return a, nil
+}
+
+func (s *SQLAnuncioStore) SalvaNovoAnuncio(anuncio model.Anuncio) error {
+	q := `
+	INSERT INTO anuncios 
+		(nome, criado_em, anunciante_id, valor, descricao, imagem)
+	VALUES 
+		($1, $2, $3, $4, $5, $6)`
+	_, err := s.DB.Exec(q, anuncio.Nome, anuncio.CriadoEm, anuncio.AnuncianteId, anuncio.Valor, anuncio.Descricao, anuncio.Imagem)
+	if err != nil {
+		s.Logger.Errorf("Erro ao salvar novo anuncio. %v", err)
+		return err
+	}
+	return nil
 }

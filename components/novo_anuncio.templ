@@ -6,7 +6,7 @@ templ NovoAnuncio() {
 			<div class="flex justify-center">
 				<div class="p-4 w-full sm:w-[65vw] md:w-[80vw] lg:max-w-4xl">
 					<h1 class="mb-4 main-heading">Criar Novo Anúncio</h1>
-					<form hx-post="/anuncios/novo" enctype="multipart/form-data" class="space-y-4" hx-target="#content" hx-swap="innerHTML">
+					<form hx-post={ string(templ.URL("/conta/anuncios/novo")) } enctype="multipart/form-data" class="space-y-4">
 						<div>
 							<label for="nome" class="block text-sm font-medium text-gray-700">Nome do Anúncio</label>
 							<input type="text" id="nome" name="nome" required class="mt-1 p-2 w-full border rounded-md" placeholder="Título do anúncio"/>
@@ -22,15 +22,15 @@ templ NovoAnuncio() {
               }"
 						>
 							<label for="valor" class="block text-sm font-medium text-gray-700">Valor (R$)</label>
-								<input
-									type="text"
-									id="valor"
-									name="valor"
-									x-model="valor"
-									@input="formatMonetaryValue($event)"
-									class="mt-1 p-2 w-full border rounded-md"
-									placeholder="0,00"
-								/>
+							<input
+								type="text"
+								id="valor"
+								name="valor"
+								x-model="valor"
+								@input="formatMonetaryValue($event)"
+								class="mt-1 p-2 w-full border rounded-md"
+								placeholder="0,00"
+							/>
 						</div>
 						<div>
 							<label for="descricao" class="block text-sm font-medium text-gray-700">Descrição</label>
