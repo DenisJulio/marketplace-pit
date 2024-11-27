@@ -35,6 +35,8 @@ func (h *AnunciosHandler) MostraTelaDeAnuncios(c echo.Context) error {
 }
 
 func (h *AnunciosHandler) MostraDetalhesDoAnuncio(c echo.Context) error {
+	nomeDeUsuario, _ := h.ssSvc.BuscaNomeDeUsuarioDaSessao(c)
+	usuario, _ := h.usuSvc.BuscaUsuarioPorNomeDeUsuario(nomeDeUsuario)
 	id, err := h.extrairId(c.Param("id"))
 	if err != nil {
 		// TODO: render not found page
@@ -44,7 +46,8 @@ func (h *AnunciosHandler) MostraDetalhesDoAnuncio(c echo.Context) error {
 		h.logger.Errorf("Anuncio com id=%d nao encontrado", id)
 		// TODO: render not found page
 	}
-	return render(c, http.StatusOK, components.DetalhesDoAnuncio(anuncio))
+	éAnunciante := usuario.ID == anuncio.AnuncianteId
+	return render(c, http.StatusOK, components.DetalhesDoAnuncio(anuncio, éAnunciante))
 }
 
 func (h *AnunciosHandler) MostraTelaDeNovaOferta(c echo.Context) error {
