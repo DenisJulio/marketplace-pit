@@ -1,6 +1,7 @@
 package components
 
 import (
+	"fmt"
 	"github.com/DenisJulio/marketplace-pit/model"
 	"github.com/DenisJulio/marketplace-pit/utils"
 	"strconv"
@@ -20,6 +21,7 @@ templ MeusAnuncios(anuncios []model.Anuncio) {
 						<div class="flex gap-2 flex-col items-stretch lg:grid lg:grid-cols-2 lg:gap-4 pb-20">
 							for _, anuncio := range anuncios {
 								<div
+									id={ fmt.Sprintf("card-anuncio-%d", anuncio.ID) }
 									class="flex items-center justify-between border border-gray-300 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow bg-white"
 								>
 									<div class="flex items-center">
@@ -68,7 +70,11 @@ templ MeusAnuncios(anuncios []model.Anuncio) {
 						<button
 							@click="
                 showModal = false;
-                htmx.ajax('DELETE', '/conta/anuncios/' + anuncioId)
+                let context = {
+                  target: '#card-anuncio-' + anuncioId,
+                  swap: 'outerHTML'
+                }
+                htmx.ajax('DELETE', '/conta/anuncios/' + anuncioId, context)
               "
 							class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
 						>

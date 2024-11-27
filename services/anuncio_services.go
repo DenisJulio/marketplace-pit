@@ -29,3 +29,7 @@ func (s *AnuncioServices) CriaNovoAnuncio(anuncio model.Anuncio) error {
 func (s *AnuncioServices) BuscaAnunciosPorNomeDeUsuario(nomeDeUsuario string) ([]model.Anuncio, error) {
 	return s.store.BuscaAnunciosPorNomeDeUsuario(nomeDeUsuario)
 }
+
+func (s *AnuncioServices) RemoveAnuncio(id int) error {
+	return s.store.RemoveAnuncio(id)
+}

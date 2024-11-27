@@ -129,6 +129,35 @@ func (h *AnunciosHandler) CriaNovoAnuncio(c echo.Context) error {
 	return c.NoContent(http.StatusNoContent)
 }
 
+func (h *AnunciosHandler) RemoveAnuncio(c echo.Context) error {
+	id, err := h.extrairId(c.Param("id"))
+	if err != nil {
+		return c.NoContent(http.StatusNotFound)
+	}
+
+	nomeDeUsuario, _ := h.ssSvc.BuscaNomeDeUsuarioDaSessao(c)
+	usuario, _ := h.usuSvc.BuscaUsuarioPorNomeDeUsuario(nomeDeUsuario)
+
+	anuncio, err := h.anunSvc.BuscaAnuncioPorID(id)
+	if err != nil {
+		c = enviaNotificacaoToast(c, toastErro, "Erro interno", "Erro ao buscar o anuncio")
+		return c.NoContent(http.StatusInternalServerError)
+	}
+
+	if anuncio.AnuncianteId != usuario.ID {
+		c = enviaNotificacaoToast(c, toastErro, "Erro interno", "Voce nao tem permissao para remover este anuncio")
+		return c.NoContent(http.StatusForbidden)
+	}
+
+	if err := h.anunSvc.RemoveAnuncio(anuncio.ID); err != nil {
+		c = enviaNotificacaoToast(c, toastErro, "Erro interno", "Erro ao remover o anuncio")
+		return c.NoContent(http.StatusInternalServerError)
+	}
+
+	h.logger.Debugf("Anuncio removido com sucesso: %d", id)
+	return c.NoContent(http.StatusOK)
+}
+
 func (h *AnunciosHandler) validarFormularioDeAnuncio(c echo.Context) (string, float64, string, *multipart.FileHeader, error) {
 	nome := c.FormValue("nome")
 	valorStr := c.FormValue("valor")

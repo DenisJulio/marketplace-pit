@@ -12,6 +12,7 @@ type AnuncioStore interface {
 	BuscaAnuncioPorID(id int) (model.Anuncio, error)
 	SalvaNovoAnuncio(anuncio model.Anuncio) error
 	BuscaAnunciosPorNomeDeUsuario(nomeDeUsuario string) ([]model.Anuncio, error)
+	RemoveAnuncio(id int) error
 }
 
 type SQLAnuncioStore struct {
@@ -98,4 +99,13 @@ func (s *SQLAnuncioStore) BuscaAnunciosPorNomeDeUsuario(nomeDeUsuario string) ([
 		anuncios = append(anuncios, a)
 	}
 	return anuncios, nil
+}
+
+func (s *SQLAnuncioStore) RemoveAnuncio(id int) error {
+	q := "DELETE FROM anuncios WHERE id = $1"
+	_, err := s.DB.Exec(q, id)
+	if err != nil {
+		s.Logger.Errorf("Erro ao remover anuncio id=%d. %v", id, err)
+	}
+	return err
 }
