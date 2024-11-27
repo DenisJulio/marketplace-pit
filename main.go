@@ -35,8 +35,9 @@ func main() {
 	anuncioHandler := handlers.NewAnunciosHandler(*anuncioService, *usuarioService, *ofertaService, *imagemService, *sessaoService, logger)
 	authHandler := handlers.NovoAuthHandler(logger)
 	usuarioHandler := handlers.NovoUsuarioHandler(*usuarioService, *sessaoService, *imagemService, logger)
+	ofertaHandler := handlers.NewOfertaHandler(*ofertaService, logger)
 	mid := handlers.NovoMiddleware(*sessaoService, logger)
-	router := routes.NewRouter(app, *anuncioHandler, *usuarioHandler, *authHandler, *mid)
+	router := routes.NewRouter(app, *anuncioHandler, *usuarioHandler, *authHandler, *ofertaHandler, *mid)
 	router.RegisterRoutes()
 	logger.Fatal(app.Start(":3000"))
 }

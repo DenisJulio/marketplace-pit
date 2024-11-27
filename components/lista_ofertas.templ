@@ -1,0 +1,22 @@
+package components
+
+import "github.com/DenisJulio/marketplace-pit/model"
+
+templ ListaDeOfertasDeUsuario(ofertas []model.Oferta) {
+	<title>Minha Ofertas</title>
+	@layout() {
+		<main id="content" hx-history-elt x-data="{ showModal: false, anuncioId: 0 }">
+			<div class="flex justify-center">
+				<div class="mt-6 mx-4 w-full sm:w-[65vw] lg:max-w-4xl">
+					if len(ofertas) == 0 {
+						<div class="text-center py-20">
+							<p class="text-gray-500 text-lg">Você não tem nenhuma oferta ainda.</p>
+						</div>
+					} else {
+						<div class="flex gap-2 flex-col items-stretch lg:grid lg:grid-cols-2 lg:gap-4 pb-20"></div>
+					}
+				</div>
+			</div>
+		</main>
+	}
+}

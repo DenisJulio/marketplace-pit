@@ -10,11 +10,12 @@ type Router struct {
 	ancH  handlers.AnunciosHandler
 	usuH  handlers.UsuarioHandler
 	authH handlers.AuthHandler
+	oftH  handlers.OfertaHandler
 	mid   handlers.Middleware
 }
 
-func NewRouter(e *echo.Echo, ancH handlers.AnunciosHandler, usuH handlers.UsuarioHandler, authH handlers.AuthHandler, mid handlers.Middleware) *Router {
-	return &Router{echo: e, ancH: ancH, authH: authH, usuH: usuH, mid: mid}
+func NewRouter(e *echo.Echo, ancH handlers.AnunciosHandler, usuH handlers.UsuarioHandler, authH handlers.AuthHandler, oftH handlers.OfertaHandler, mid handlers.Middleware) *Router {
+	return &Router{echo: e, ancH: ancH, authH: authH, usuH: usuH, oftH: oftH, mid: mid}
 }
 
 func (r *Router) RegisterRoutes() {
@@ -36,6 +37,7 @@ func (r *Router) RegisterRoutes() {
 	r.echo.DELETE("/conta/anuncios/:id", r.ancH.RemoveAnuncio, r.mid.AuthMiddleware)
 	r.echo.GET("/conta/anuncios/novo", r.ancH.MostraPaginaDeCriacaoDeNovoAnuncio, r.mid.AuthMiddleware)
 	r.echo.POST("/conta/anuncios/novo", r.ancH.CriaNovoAnuncio)
+	r.echo.GET("/conta/ofertas", r.oftH.MostraListaDeOfertasDoUsuario, r.mid.AuthMiddleware)
 	r.echo.GET("/anuncios/:id", r.ancH.MostraDetalhesDoAnuncio)
 	r.echo.GET("/anuncios/:id/nova-oferta", r.ancH.MostraTelaDeNovaOferta, r.mid.AuthMiddleware)
 	r.echo.POST("/anuncios/:id/nova-oferta", r.ancH.CriaNovaOfertaParaAnuncio)
