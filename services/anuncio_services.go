@@ -25,3 +25,7 @@ func (s *AnuncioServices) BuscaAnuncioPorID(id int) (model.Anuncio, error) {
 func (s *AnuncioServices) CriaNovoAnuncio(anuncio model.Anuncio) error {
 	return s.store.SalvaNovoAnuncio(anuncio)
 }
+
+func (s *AnuncioServices) BuscaAnunciosPorNomeDeUsuario(nomeDeUsuario string) ([]model.Anuncio, error) {
+	return s.store.BuscaAnunciosPorNomeDeUsuario(nomeDeUsuario)
+}

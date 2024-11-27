@@ -3,12 +3,13 @@ package components
 import (
 	"github.com/DenisJulio/marketplace-pit/model"
 	"github.com/DenisJulio/marketplace-pit/utils"
+	"strconv"
 )
 
 templ MeusAnuncios(anuncios []model.Anuncio) {
 	<title>Meus Anúncios</title>
 	@layout() {
-		<main id="content" hx-history-elt>
+		<main id="content" hx-history-elt x-data="{ showModal: false, anuncioId: 0 }">
 			<div class="flex justify-center">
 				<div class="mt-6 mx-4 w-full sm:w-[65vw] lg:max-w-4xl">
 					if len(anuncios) == 0 {
@@ -19,29 +20,67 @@ templ MeusAnuncios(anuncios []model.Anuncio) {
 						<div class="flex gap-2 flex-col items-stretch lg:grid lg:grid-cols-2 lg:gap-4 pb-20">
 							for _, anuncio := range anuncios {
 								<div
-									class="flex items-center border border-gray-300 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow bg-white"
+									class="flex items-center justify-between border border-gray-300 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow bg-white"
 								>
-									<img src={ *anuncio.Imagem } alt="{anuncio.Nome}" class="w-16 h-16 object-cover rounded-lg mr-4"/>
-									<div class="flex flex-col">
-										<span class="font-semibold text-lg text-gray-800">{ anuncio.Nome }</span>
-										<span class="text-sm text-gray-500">Publicado em: { anuncio.CriadoEm.Format("02/01/2006") }</span>
-										<span class="text-sm text-gray-700 font-medium mt-1">{ utils.FormataMoedaBR(anuncio.Valor) }</span>
+									<div class="flex items-center">
+										<img src={ *anuncio.Imagem } alt="{anuncio.Nome}" class="w-16 h-16 object-cover rounded-lg mr-4"/>
+										<div class="flex flex-col mr-1">
+											<span class="font-semibold text-lg text-gray-800">{ anuncio.Nome }</span>
+											<span class="text-sm text-gray-500">Publicado em: { anuncio.CriadoEm.Format("02/01/2006") }</span>
+											<span class="text-sm text-gray-700 font-medium mt-1">{ utils.FormataMoedaBR(anuncio.Valor) }</span>
+										</div>
 									</div>
+									<!-- Delete Button -->
+									<button
+										id={ string(strconv.Itoa(anuncio.ID)) }
+										@click="showModal = true; anuncioId = $el.id"
+										class="mt-1 self-start text-red-600 hover:text-red-800 transition-colors"
+									>
+										<i class="fa-solid fa-trash"></i>
+									</button>
 								</div>
 							}
 						</div>
 					}
+					<!-- Floating Action Button -->
 					<button
 						hx-get={ string(templ.URL("/conta/anuncios/novo")) }
-            hx-target="#content"
-            hx-select="#content"
-            hx-swap="outerHTML"
-            hx-push-url="true"
+						hx-target="#content"
+						hx-select="#content"
+						hx-swap="outerHTML"
+						hx-push-url="true"
 						class="fixed bottom-4 right-4 flex gap-2 items-center btn-primary"
 					>
 						<i class="fa-solid fa-plus"></i>
 						<span>Novo Anúncio</span>
 					</button>
+				</div>
+			</div>
+			<!-- Delete Confirmation Modal -->
+			<div
+				x-show="showModal"
+				class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+				x-cloak
+			>
+				<div class="bg-white rounded-lg p-6 shadow-lg w-80">
+					<p class="text-center text-gray-800">Tem certeza de que deseja excluir este anúncio?</p>
+					<div class="flex justify-center mt-4 gap-4">
+						<button
+							@click="
+                showModal = false;
+                htmx.ajax('DELETE', '/conta/anuncios/' + anuncioId)
+              "
+							class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+						>
+							Confirmar
+						</button>
+						<button
+							@click="showModal = false"
+							class="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
+						>
+							Cancelar
+						</button>
+					</div>
 				</div>
 			</div>
 		</main>

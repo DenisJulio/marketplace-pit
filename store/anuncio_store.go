@@ -11,6 +11,7 @@ type AnuncioStore interface {
 	BuscaTodosAnuncios() ([]model.Anuncio, error)
 	BuscaAnuncioPorID(id int) (model.Anuncio, error)
 	SalvaNovoAnuncio(anuncio model.Anuncio) error
+	BuscaAnunciosPorNomeDeUsuario(nomeDeUsuario string) ([]model.Anuncio, error)
 }
 
 type SQLAnuncioStore struct {
@@ -70,4 +71,31 @@ func (s *SQLAnuncioStore) SalvaNovoAnuncio(anuncio model.Anuncio) error {
 		return err
 	}
 	return nil
+}
+
+func (s *SQLAnuncioStore) BuscaAnunciosPorNomeDeUsuario(nomeDeUsuario string) ([]model.Anuncio, error) {
+	s.Logger.Debugf("Buscando anuncios por nome de usuario=%s", nomeDeUsuario)
+	q := `
+		SELECT a.id, a.nome, a.criado_em, a.anunciante_id, a.valor, a.descricao, a.imagem 
+		FROM anuncios a
+		JOIN usuarios u ON a.anunciante_id = u.id
+		WHERE u.nome_de_usuario = $1`
+	rows, err := s.DB.Query(q, nomeDeUsuario)
+	if err != nil {
+		s.Logger.Errorf("Erro ao buscar anuncios por nome de usuario=%s. %v", nomeDeUsuario, err)
+		return []model.Anuncio{}, err
+	}
+	defer rows.Close()
+
+	var anuncios []model.Anuncio
+	for rows.Next() {
+		var a model.Anuncio
+		err := rows.Scan(&a.ID, &a.Nome, &a.CriadoEm, &a.AnuncianteId, &a.Valor, &a.Descricao, &a.Imagem)
+		if err != nil {
+			s.Logger.Errorf("Erro ao buscar anuncio. %v", err)
+			continue
+		}
+		anuncios = append(anuncios, a)
+	}
+	return anuncios, nil
 }

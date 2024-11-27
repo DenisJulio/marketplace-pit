@@ -6,7 +6,16 @@ templ NovoAnuncio() {
 			<div class="flex justify-center">
 				<div class="p-4 w-full sm:w-[65vw] md:w-[80vw] lg:max-w-4xl">
 					<h1 class="mb-4 main-heading">Criar Novo Anúncio</h1>
-					<form hx-post={ string(templ.URL("/conta/anuncios/novo")) } enctype="multipart/form-data" class="space-y-4">
+					<form
+						hx-post={ string(templ.URL("/conta/anuncios/novo")) }
+						enctype="multipart/form-data"
+						class="space-y-4"
+						hx-on::after-request="
+              if (event.detail.xhr.status === 204) {
+                htmx.ajax('GET', '/conta/anuncios', {target: '#content', swap: 'outerHTML', select: '#content'});
+              }
+            "
+					>
 						<div>
 							<label for="nome" class="block text-sm font-medium text-gray-700">Nome do Anúncio</label>
 							<input type="text" id="nome" name="nome" required class="mt-1 p-2 w-full border rounded-md" placeholder="Título do anúncio"/>

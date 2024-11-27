@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"mime/multipart"
 	"net/http"
 	"strconv"
@@ -64,10 +65,12 @@ func (h *AnunciosHandler) MostraTelaDeNovaOferta(c echo.Context) error {
 }
 
 func (h *AnunciosHandler) MostraPaginaDeAnunciosDoUsuario(ctx echo.Context) error {
-	// nomeDeUsuario, _ := buscaNomeDeUsuarioDaSessao(ctx, h.logger)
-	// busco anuncios para o usuario
-	// mostra a pagina de anuncios do usuario
-	anun := []model.Anuncio{}
+	nomeDeUsuario, _ := h.ssSvc.BuscaNomeDeUsuarioDaSessao(ctx)
+	anun, _ := h.anunSvc.BuscaAnunciosPorNomeDeUsuario(nomeDeUsuario)
+	for _, a := range anun {
+		h.logger.Debugf("Anuncio: %+v", a)
+		h.logger.Debugf("Criado há: %s", utils.FormataTempoRelativo(a.CriadoEm))
+	}
 	return render(ctx, http.StatusOK, components.MeusAnuncios(anun))
 }
 
@@ -100,30 +103,28 @@ func (h *AnunciosHandler) CriaNovaOfertaParaAnuncio(c echo.Context) error {
 func (h *AnunciosHandler) CriaNovoAnuncio(c echo.Context) error {
 	nome, valor, descricao, imagem, err := h.validarFormularioDeAnuncio(c)
 
-	h.logger.Debugf("Nome: %s, Valor: %f, Descricao: %s, Imagem: %s", nome, valor, descricao, imagem.Filename)
-
 	if err != nil {
-		h.logger.Errorf("Erro ao obter o arquivo de imagem: %v", err)
-		return c.String(http.StatusBadRequest, "Erro ao obter o arquivo de imagem")
+		c = enviaNotificacaoToast(c, toastErro, "Erro no envio", err.Error())
+		return c.NoContent(http.StatusBadRequest)
 	}
 
 	imagemPath, err := h.imgSvc.SalvalNovaImagem(store.ImagemDeAnuncio, imagem)
 	if err != nil {
 		h.logger.Errorf("Erro ao salvar a imagem: %v", err)
-		return c.String(http.StatusInternalServerError, "Erro ao salvar a imagem")
+		c = enviaNotificacaoToast(c, toastErro, "Erro interno", "Erro ao salvar a imagem")
+		return c.NoContent(http.StatusInternalServerError)
 	}
 
 	nomeDeUsuario, _ := h.ssSvc.BuscaNomeDeUsuarioDaSessao(c)
 	usuario, _ := h.usuSvc.BuscaUsuarioPorNomeDeUsuario(nomeDeUsuario)
 
-	// Create the new anuncio
 	anuncio := model.NovoAnuncio(nome, usuario.ID, valor, &descricao, &imagemPath)
 	if err := h.anunSvc.CriaNovoAnuncio(anuncio); err != nil {
 		h.logger.Errorf("Erro ao criar o novo anuncio: %v", err)
-		return c.String(http.StatusInternalServerError, "Erro ao criar o novo anuncio")
+		c = enviaNotificacaoToast(c, toastErro, "Erro interno", "Erro ao criar o anuncio")
+		return c.NoContent(http.StatusInternalServerError)
 	}
 
-	// Redirect to the anuncios page
 	h.logger.Debugf("Anuncio criado com sucesso: %s", nome)
 	return c.NoContent(http.StatusNoContent)
 }
@@ -136,27 +137,25 @@ func (h *AnunciosHandler) validarFormularioDeAnuncio(c echo.Context) (string, fl
 	descricao := c.FormValue("descricao")
 	imagem, err := c.FormFile("imagem")
 
-	h.logger.Debugf("Nome: %s, Valor: %f, Descricao: %s, Imagem: %s", nome, valor, descricao, imagem.Filename)
-
-	if nome == "" {
+	if strings.TrimSpace(nome) == "" {
 		h.logger.Errorf("O campo nome não pode estar vazio")
-		return "", 0, "", nil, echo.NewHTTPError(http.StatusBadRequest, "O campo nome não pode estar vazio")
+		return "", 0, "", nil, errors.New("Um nome para o anuncio deve ser fornecido")
 	}
 	if valor == 0 {
 		h.logger.Errorf("O valor não pode ser zero")
-		return "", 0, "", nil, echo.NewHTTPError(http.StatusBadRequest, "O valor não pode ser zero")
+		return "", 0, "", nil, errors.New("O valor do anuncio deve ser maior que zero")
 	}
-	if descricao == "" {
+	if strings.TrimSpace(descricao) == "" {
 		h.logger.Errorf("O campo descrição não pode estar vazio")
-		return "", 0, "", nil, echo.NewHTTPError(http.StatusBadRequest, "O campo descrição não pode estar vazio")
+		return "", 0, "", nil, errors.New("O anuncio deve ter uma descricao")
 	}
 	if err != nil {
-		h.logger.Errorf("O campo imagem não pode estar vazio")
-		return "", 0, "", nil, echo.NewHTTPError(http.StatusBadRequest, "O campo imagem não pode estar vazio")
+		h.logger.Errorf("Erro ao obter o arquivo de imagem: %v", err)
+		return "", 0, "", nil, errors.New("Voce deve enviar uma imagem para o produto")
 	}
 	if imagem.Size > 10*1024*1024 { // 10 MB
-		h.logger.Errorf("O tamanho da imagem não pode ser maior que 10 MB")
-		return "", 0, "", nil, echo.NewHTTPError(http.StatusBadRequest, "O tamanho da imagem não pode ser maior que 10 MB")
+		h.logger.Errorf("Imagem excede o tamanho maximo permitido de 10 MB")
+		return "", 0, "", nil, errors.New("O tamanho da imagem nao pode ser maior que 10 MB")
 	}
 	return nome, valor, descricao, imagem, nil
 }
