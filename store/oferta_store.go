@@ -21,9 +21,18 @@ func NewSQLOfertaStore(db *sql.DB, logger utils.Logger) *SqlOfertaStore {
 	return &SqlOfertaStore{db: db, logger: logger}
 }
 
+// CriaNovaOfertaParaAnuncio cria uma nova oferta para um anúncio específico.
+//
+// Parâmetros:
+//   - oferta: objeto do tipo model.Oferta contendo os detalhes da oferta.
+//   - msg: objeto do tipo model.Mensagem contendo a mensagem associada à oferta.
+//
+// Retorna:
+//   - int: o ID da nova oferta criada.
+//   - error: um erro, caso ocorra algum problema durante a criação da oferta.
 func (s *SqlOfertaStore) CriaNovaOfertaParaAnuncio(oferta model.Oferta, msg model.Mensagem) (int, error) {
 	// insere a nova oferta no banco de dados
-    query := `INSERT INTO ofertas (criado_em, ofertante_id, anunciante_id, anuncio_id) VALUES ($1, $2, $3, $4) RETURNING id`
+	query := `INSERT INTO ofertas (criado_em, ofertante_id, anunciante_id, anuncio_id) VALUES ($1, $2, $3, $4) RETURNING id`
 	var id int
 	err := s.db.QueryRow(query, oferta.CriadoEm, oferta.OfertanteID, oferta.AnuncianteID, oferta.AnuncioID).Scan(&id)
 	if err != nil {

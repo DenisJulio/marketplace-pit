@@ -79,12 +79,14 @@ func (h *AnunciosHandler) MostraPaginaDeCriacaoDeNovoAnuncio(ctx echo.Context) e
 }
 
 func (h *AnunciosHandler) CriaNovaOfertaParaAnuncio(c echo.Context) error {
-	var ofertanteId int
+	nUsOfertante, _ := h.ssSvc.BuscaNomeDeUsuarioDaSessao(c)
+	ofertante, _ := h.usuSvc.BuscaUsuarioPorNomeDeUsuario(nUsOfertante)
 
 	// extrair e validar o formulario
 	msgForm, err := h.validarFormulario(c, "mensagem")
 	if err != nil {
-		// TODO: retornar um snackbar com htmx
+		c = enviaNotificacaoToast(c, toastErro, "Erro no envio", "Voce deve enviar uma mensagem para o anunciante.")
+		c.NoContent(http.StatusBadRequest)
 	}
 
 	id, _ := h.extrairId(c.Param("id"))
@@ -92,12 +94,17 @@ func (h *AnunciosHandler) CriaNovaOfertaParaAnuncio(c echo.Context) error {
 	anunciante, _ := h.usuSvc.BuscaUsuarioPorId(anuncio.AnuncianteId)
 
 	// create the oferta
-	oferta := model.NewOferta(anunciante.ID, ofertanteId, anuncio.ID)
-	mensagen := model.NewMensagem(ofertanteId, msgForm)
-	h.oftSvc.CriaNovaOfertaParaAnuncio(*oferta, *mensagen)
+	oferta := model.NewOferta(anunciante.ID, ofertante.ID, anuncio.ID)
+	mensagen := model.NewMensagem(ofertante.ID, msgForm)
+	_, errOft := h.oftSvc.CriaNovaOfertaParaAnuncio(*oferta, *mensagen)
+	if errOft != nil {
+		h.logger.Errorf("Erro ao criar a nova oferta: %v", errOft)
+		return c.NoContent(http.StatusInternalServerError)
+	}
 
 	// redirect to Home
-	return c.Redirect(http.StatusSeeOther, "/") // TODO: idealmete, redirecionar pelo cliente
+	c = enviaNotificacaoToast(c, toastSucesso, "Oferta enviada", "Sua oferta foi enviada com sucesso.")
+	return c.NoContent(http.StatusNoContent)
 }
 
 func (h *AnunciosHandler) CriaNovoAnuncio(c echo.Context) error {
@@ -153,6 +160,7 @@ func (h *AnunciosHandler) RemoveAnuncio(c echo.Context) error {
 		c = enviaNotificacaoToast(c, toastErro, "Erro interno", "Erro ao remover o anuncio")
 		return c.NoContent(http.StatusInternalServerError)
 	}
+	h.imgSvc.RemoveImagem(store.ImagemDeAnuncio, *anuncio.Imagem)
 
 	h.logger.Debugf("Anuncio removido com sucesso: %d", id)
 	return c.NoContent(http.StatusOK)
@@ -200,7 +208,7 @@ func (h *AnunciosHandler) extrairId(id string) (int, error) {
 
 func (h *AnunciosHandler) validarFormulario(c echo.Context, campoForm string) (string, error) {
 	val := c.FormValue(campoForm)
-	if val == "" {
+	if strings.TrimSpace(val) == "" {
 		h.logger.Errorf("Campo do formalario: %s nao pode ser vazio", campoForm)
 		return "", echo.ErrBadRequest
 	}

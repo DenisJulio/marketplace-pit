@@ -1,70 +1,84 @@
 package components
 
 import (
-"fmt"
-"github.com/DenisJulio/marketplace-pit/model"
-"github.com/DenisJulio/marketplace-pit/utils"
+	"fmt"
+	"github.com/DenisJulio/marketplace-pit/model"
+	"github.com/DenisJulio/marketplace-pit/utils"
 )
 
 templ NovaOferta(anuncio model.Anuncio, anunciante model.Usuario) {
-@layout() {
-<main id="content" hx-history-elt>
-  <div class="flex justify-center">
-    <div class="p-4 w-full sm:w-[65vw] md:w-[80vw] lg:max-w-4xl">
-      <h1 class="text-4xl font-bold mb-4">Nova Oferta</h1>
-      <div class="flex flex-col gap-4">
-        <div id="card-preview"
-          class="p-4 w-[40vw] min-w-fit max-w-lg self-end bg-gray-200 border border-slate-400 rounded-md">
-          <div class="text-slate-600">Anuncio:</div>
-          @anuncioPreview(anuncio)
-          @divider()
-          <div class="mt-2 text-slate-600">Anunciante:</div>
-          @anunciantePreview(anunciante)
-        </div>
-        <div class="self-stretch">
-          <form hx-post={ string(templ.URL(fmt.Sprintf("/anuncios/%d/nova-oferta", anuncio.ID))) } hx-target="#content"
-            hx-swap="outerHTML">
-            <div class="mb-4">
-              <label for="mensagem" class="block text-gray-700 text-sm font-bold mb-2">
-                Mensagem para o
-                anunciante:
-              </label>
-              <textarea id="mensagem" name="mensagem" rows="5"
-                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline resize-none"
-                placeholder="Escreva sua mensagem aqui..."></textarea>
-            </div>
-            <button type="submit"
-              class="mt-4 w-full rounded-lg p-4 uppercase bg-blue-500 hover:bg-blue-700 text-white font-bold text-xs">
-              Criar Oferta
-            </button>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
-</main>
-}
+	@layout() {
+		<main id="content" hx-history-elt>
+			<div class="flex justify-center">
+				<div class="p-4 w-full sm:w-[65vw] md:w-[80vw] lg:max-w-4xl">
+					<h1 class="main-heading">Nova Oferta</h1>
+					<div class="mt-4 flex flex-col gap-4">
+						<div
+							id="card-preview"
+							class="p-4 w-[40vw] min-w-fit max-w-lg self-end bg-gray-200 border border-slate-400 rounded-md"
+						>
+							<div class="text-slate-600">Anuncio:</div>
+							@anuncioPreview(anuncio)
+							@divider()
+							<div class="mt-2 text-slate-600">Anunciante:</div>
+							@anunciantePreview(anunciante)
+						</div>
+						<div class="self-stretch">
+							<form
+								hx-post={ string(templ.URL(fmt.Sprintf("/anuncios/%d/nova-oferta", anuncio.ID))) }
+								hx-on::after-request="
+                  if (event.detail.xhr.status === 204) {
+                    htmx.ajax('GET', '/', {target: '#content', swap: 'outerHTML', select: '#content'});
+                  }
+                "
+							>
+								<div class="mb-4">
+									<label for="mensagem" class="block text-gray-700 text-sm font-bold mb-2">
+										Mensagem para o
+										anunciante:
+									</label>
+									<textarea
+										id="mensagem"
+										name="mensagem"
+										rows="5"
+										class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline resize-none"
+										placeholder="Escreva sua mensagem aqui..."
+									></textarea>
+								</div>
+								<button
+									type="submit"
+									class="mt-4 w-full btn-primary"
+								>
+									Criar Oferta
+								</button>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</main>
+	}
 }
 
 templ anuncioPreview(anuncio model.Anuncio) {
-<div class="mx-2 flex justify-end gap-4">
-  <div>
-    <h2 class="text-md font-bold text-slate-600">{ anuncio.Nome }</h2>
-    <p class="text-md text-slate-500">{ utils.FormataMoedaBR(anuncio.Valor) }</p>
-  </div>
-  <img src={ *anuncio.Imagem } alt="Product" class="h-24 w-24 object-cover rounded-lg" />
-</div>
+	<div class="mx-2 flex justify-end gap-4">
+		<div>
+			<h2 class="text-md font-bold text-slate-600">{ anuncio.Nome }</h2>
+			<p class="text-md text-slate-500">{ utils.FormataMoedaBR(anuncio.Valor) }</p>
+		</div>
+		<img src={ *anuncio.Imagem } alt="Product" class="h-24 w-24 object-cover rounded-lg"/>
+	</div>
 }
 
 templ divider() {
-<div class="my-2 border-b border-slate-400"></div>
+	<div class="my-2 border-b border-slate-400"></div>
 }
 
 templ anunciantePreview(anunciante model.Usuario) {
-<div class="mx-2 flex justify-end gap-4">
-  <div>
-    <h2 class="text-md font-bold text-slate-600">{ anunciante.Nome }</h2>
-  </div>
-  <img src={ *anunciante.Imagem } alt="Product" class="h-16 w-16 object-cover rounded-full" />
-</div>
+	<div class="mx-2 flex justify-end gap-4">
+		<div>
+			<h2 class="text-md font-bold text-slate-600">{ anunciante.Nome }</h2>
+		</div>
+		<img src={ *anunciante.Imagem } alt="Product" class="h-16 w-16 object-cover rounded-full"/>
+	</div>
 }

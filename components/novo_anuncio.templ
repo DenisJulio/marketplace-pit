@@ -18,7 +18,7 @@ templ NovoAnuncio() {
 					>
 						<div>
 							<label for="nome" class="block text-sm font-medium text-gray-700">Nome do Anúncio</label>
-							<input type="text" id="nome" name="nome" required class="mt-1 p-2 w-full border rounded-md" placeholder="Título do anúncio"/>
+							<input type="text" id="nome" name="nome" required class="inpt" placeholder="Título do anúncio"/>
 						</div>
 						<div
 							x-data="{
@@ -37,13 +37,13 @@ templ NovoAnuncio() {
 								name="valor"
 								x-model="valor"
 								@input="formatMonetaryValue($event)"
-								class="mt-1 p-2 w-full border rounded-md"
+								class="inpt"
 								placeholder="0,00"
 							/>
 						</div>
 						<div>
 							<label for="descricao" class="block text-sm font-medium text-gray-700">Descrição</label>
-							<textarea id="descricao" name="descricao" rows="4" class="mt-1 p-2 w-full border rounded-md" placeholder="Descrição detalhada do anúncio"></textarea>
+							<textarea id="descricao" name="descricao" rows="4" class="inpt" placeholder="Descrição detalhada do anúncio"></textarea>
 						</div>
 						<div
 							x-data="{
