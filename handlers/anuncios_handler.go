@@ -46,8 +46,8 @@ func (h *AnunciosHandler) MostraDetalhesDoAnuncio(c echo.Context) error {
 		h.logger.Errorf("Anuncio com id=%d nao encontrado", id)
 		// TODO: render not found page
 	}
-	éAnunciante := usuario.ID == anuncio.AnuncianteId
-	return render(c, http.StatusOK, components.DetalhesDoAnuncio(anuncio, éAnunciante))
+	eAnunciante := usuario.ID == anuncio.AnuncianteId
+	return render(c, http.StatusOK, components.DetalhesDoAnuncio(anuncio, eAnunciante))
 }
 
 func (h *AnunciosHandler) MostraTelaDeNovaOferta(c echo.Context) error {
@@ -70,10 +70,6 @@ func (h *AnunciosHandler) MostraTelaDeNovaOferta(c echo.Context) error {
 func (h *AnunciosHandler) MostraPaginaDeAnunciosDoUsuario(ctx echo.Context) error {
 	nomeDeUsuario, _ := h.ssSvc.BuscaNomeDeUsuarioDaSessao(ctx)
 	anun, _ := h.anunSvc.BuscaAnunciosPorNomeDeUsuario(nomeDeUsuario)
-	for _, a := range anun {
-		h.logger.Debugf("Anuncio: %+v", a)
-		h.logger.Debugf("Criado há: %s", utils.FormataTempoRelativo(a.CriadoEm))
-	}
 	return render(ctx, http.StatusOK, components.MeusAnuncios(anun))
 }
 

@@ -6,7 +6,7 @@ import (
 	"github.com/DenisJulio/marketplace-pit/utils"
 )
 
-templ DetalhesDoAnuncio(anuncio model.Anuncio, éAnunciante bool) {
+templ DetalhesDoAnuncio(anuncio model.Anuncio, eAnunciante bool) {
 	<title>{ anuncio.Nome }</title>
 	@layout() {
 		<main id="content" hx-history-elt>
@@ -54,7 +54,7 @@ templ DetalhesDoAnuncio(anuncio model.Anuncio, éAnunciante bool) {
 							<p class="text-3xl text-gray-800 mb-2">{ utils.FormataMoedaBR(anuncio.Valor) }</p>
 							<button
 								id="btn-nova-oferta"
-								disabled?={ éAnunciante }
+								disabled?={ eAnunciante }
 								class="mt-4 w-full disabled:bg-gray-300 btn-primary"
 								hx-get={ string(templ.URL(fmt.Sprintf("/anuncios/%d/nova-oferta", anuncio.ID))) }
 								hx-select="#content"
