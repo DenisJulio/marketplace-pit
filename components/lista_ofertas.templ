@@ -8,36 +8,44 @@ import (
 templ ListaDeOfertasDeUsuario(ofertas []model.OfertaExpandida) {
 	<title>Minhas Ofertas</title>
 	@layout() {
-		<main id="content" hx-history-elt x-data="{ showModal: false, anuncioId: 0 }">
+		<main id="content" hx-history-elt>
 			<div class="flex justify-center">
-				<div class="mt-6 mx-4 w-full sm:w-[65vw] lg:max-w-4xl">
+				<div class="mt-6 mx-4 w-full sm:w-[65vw] lg:w-[40vw]">
 					if len(ofertas) == 0 {
 						<div class="text-center py-20">
 							<p class="text-gray-500 text-lg">Você não tem nenhuma oferta ainda.</p>
 						</div>
 					} else {
-						<div class="overflow-x-auto relative shadow-md sm:rounded-lg">
-							<table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-								<thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-									<tr>
-										<th scope="col" class="px-6 py-3">Oferta ID</th>
-										<th scope="col" class="px-6 py-3">Criado Em</th>
-										<th scope="col" class="px-6 py-3">Nome do Anúncio</th>
-										<th scope="col" class="px-6 py-3">Nome do Ofertante</th>
-									</tr>
-								</thead>
-								<tbody>
-									for _, oferta := range ofertas {
-										<tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-											<td class="px-6 py-4">{ string(strconv.Itoa(oferta.ID)) }</td>
-											<td class="px-6 py-4">{ oferta.CriadoEm.Format("02/01/2006") }</td>
-											<td class="px-6 py-4">{ oferta.Anuncio.Nome }</td>
-											<td class="px-6 py-4">{ oferta.Ofertante.Nome }</td>
-										</tr>
-									}
-								</tbody>
-							</table>
-						</div>
+						<ul class="divide-y divide-gray-200">
+							for _, oferta := range ofertas {
+								<li class="py-4 px-6 bg-white shadow rounded-lg mb-4">
+									<div class="flex flex-col sm:flex-row sm:text-center sm:justify-between sm:gap-4">
+										<div class="text-gray-800 sm:block gap-2 sm:mt-0 flex flex-row sm:flex-col sm:gap-4">
+											<span class="block font-bold">ID Oferta:</span>
+											<span class="block">{ string(strconv.Itoa(oferta.ID)) }</span>
+										</div>
+										<div class="text-gray-500 sm:block gap-2 sm:mt-0 flex flex-row sm:flex-col sm:gap-4">
+											<span class="block">Criado em:</span>
+											<span class="block">{ oferta.CriadoEm.Format("02/01/2006") }</span>
+										</div>
+										<div class="text-gray-800 sm:block gap-2 sm:mt-0 flex flex-row sm:flex-col sm:gap-4">
+											<span class="block font-bold">Anúncio:</span>
+											<span class="block">{ oferta.Anuncio.Nome }</span>
+										</div>
+										<div class="text-gray-800 sm:block gap-2 sm:mt-0 flex flex-row sm:flex-col sm:gap-4">
+											<span class="block font-bold">Ofertante:</span>
+											<span class="block">
+												if oferta.EOfertante {
+													Você
+												} else {
+													{ oferta.Ofertante.Nome }
+												}
+											</span>
+										</div>
+									</div>
+								</li>
+							}
+						</ul>
 					}
 				</div>
 			</div>
