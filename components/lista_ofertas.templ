@@ -1,9 +1,12 @@
 package components
 
-import "github.com/DenisJulio/marketplace-pit/model"
+import (
+	"github.com/DenisJulio/marketplace-pit/model"
+	"strconv"
+)
 
-templ ListaDeOfertasDeUsuario(ofertas []model.Oferta) {
-	<title>Minha Ofertas</title>
+templ ListaDeOfertasDeUsuario(ofertas []model.OfertaExpandida) {
+	<title>Minhas Ofertas</title>
 	@layout() {
 		<main id="content" hx-history-elt x-data="{ showModal: false, anuncioId: 0 }">
 			<div class="flex justify-center">
@@ -13,7 +16,28 @@ templ ListaDeOfertasDeUsuario(ofertas []model.Oferta) {
 							<p class="text-gray-500 text-lg">Você não tem nenhuma oferta ainda.</p>
 						</div>
 					} else {
-						<div class="flex gap-2 flex-col items-stretch lg:grid lg:grid-cols-2 lg:gap-4 pb-20"></div>
+						<div class="overflow-x-auto relative shadow-md sm:rounded-lg">
+							<table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+								<thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+									<tr>
+										<th scope="col" class="px-6 py-3">Oferta ID</th>
+										<th scope="col" class="px-6 py-3">Criado Em</th>
+										<th scope="col" class="px-6 py-3">Nome do Anúncio</th>
+										<th scope="col" class="px-6 py-3">Nome do Ofertante</th>
+									</tr>
+								</thead>
+								<tbody>
+									for _, oferta := range ofertas {
+										<tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+											<td class="px-6 py-4">{ string(strconv.Itoa(oferta.ID)) }</td>
+											<td class="px-6 py-4">{ oferta.CriadoEm.Format("02/01/2006") }</td>
+											<td class="px-6 py-4">{ oferta.Anuncio.Nome }</td>
+											<td class="px-6 py-4">{ oferta.Ofertante.Nome }</td>
+										</tr>
+									}
+								</tbody>
+							</table>
+						</div>
 					}
 				</div>
 			</div>

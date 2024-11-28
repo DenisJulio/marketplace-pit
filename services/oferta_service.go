@@ -16,3 +16,7 @@ func NewOfertaService(s store.OfertaStore) *OfertaService {
 func (os *OfertaService) CriaNovaOfertaParaAnuncio(oferta model.Oferta, msg model.Mensagem) (int, error) {
 	return os.s.CriaNovaOfertaParaAnuncio(oferta, msg)
 }
+
+func (os *OfertaService) BuscaTodasAsOfertasExpandidasDoUsuario(usuarioId int) ([]model.OfertaExpandida, error) {
+	return os.s.BuscaTodasAsOfertasExpandidasDoUsuario(usuarioId)
+}
