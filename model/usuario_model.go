@@ -1,9 +1,9 @@
 package model
 
 type Usuario struct {
-	ID                         int
-	Nome, NomeDeUsuario, Senha string
-	Imagem                     *string
+	ID                                int
+	Nome, NomeDeUsuario, Senha, Email string
+	Imagem                            *string
 }
 
 func NovoUsuario(nome, nomeDeUsuario string) *Usuario {

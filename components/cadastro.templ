@@ -22,6 +22,15 @@ templ PaginaDeCadastro() {
                 return this.interagido && this.valor.trim() === '';
               },
             },
+            email: {
+              valor: '',
+              interagido: false,
+              existe: false,
+              get invalido() {
+              const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return this.interagido && (this.valor.trim() === '' || !emailRegex.test(this.valor)) || this.existe;
+              },
+            },
             senha: {
               valor: '', 
               interagido: false,
@@ -30,20 +39,23 @@ templ PaginaDeCadastro() {
               },
             },
             get camposInvalidos() {
-              return this.nomeDeUsuario.invalido || this.nome.invalido || this.senha.invalido;
+              return this.nomeDeUsuario.invalido || this.nome.invalido || this.email.invalido || this.senha.invalido;
             },
             get camposNaoInteragidos() {
-              return !this.nomeDeUsuario.interagido || !this.nome.interagido || !this.senha.interagido;
+              return !this.nomeDeUsuario.interagido || !this.nome.interagido || !this.email.interagido || !this.senha.interagido;
             }
           }"
 				>
 					<h2 class="text-2xl text-left font-bold mb-6">Crie uma nova conta</h2>
-					<form hx-post={ string(templ.URL("/cadastro")) } class="space-y-4" 
-            hx-on::after-request="
+					<form
+						hx-post={ string(templ.URL("/cadastro")) }
+						class="space-y-4"
+						hx-on::after-request="
               if (event.detail.xhr.status === 204) {
                 htmx.ajax('GET', '/login', {target: '#content', swap: 'outerHTML', select: '#content'});
               }
-          ">
+          "
+					>
 						<div>
 							<label class="block text-gray-700 font-medium mb-1" for="nomeDeUsuario">Nome de usuário:</label>
 							<input
@@ -56,7 +68,7 @@ templ PaginaDeCadastro() {
 								hx-select="#validacaoNomeDeUsuario"
 								hx-target="#validacaoNomeDeUsuario"
 								class="w-full px-4 py-2 border rounded-md focus:outline-none"
-								:class="nomeDeUsuario.invalido ? 'border-red-500  focus:ring focus:ring-red-500' : 'focus:ring focus:ring-indigo-500'"
+								:class="nomeDeUsuario.invalido ? 'border-red-500 focus:ring focus:ring-red-500' : 'focus:ring focus:ring-indigo-500'"
 								@blur="nomeDeUsuario.interagido = true"
 								required
 							/>
@@ -74,16 +86,37 @@ templ PaginaDeCadastro() {
 								x-model="nome.valor"
 								@blur="nome.interagido = true"
 								class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-								:class="nome.invalido ? 'border-red-500  focus:ring focus:ring-red-500' : 'focus:ring focus:ring-indigo-500'"
+								:class="nome.invalido ? 'border-red-500 focus:ring focus:ring-red-500' : 'focus:ring focus:ring-indigo-500'"
 								required
 							/>
 							<p x-show="nome.invalido" class="text-red-500 text-xs mt-1">
 								O nome não pode estar em branco.
 							</p>
 						</div>
+						<div>
+							<label class="block text-gray-700 font-medium mb-1" for="email">Email:</label>
+							<input
+								type="email"
+								id="email"
+								name="email"
+								x-model="email.valor"
+								hx-post={ string(templ.URL("/cadastro/email")) }
+								hx-trigger="input"
+								hx-select="#validacaoEmail"
+								hx-target="#validacaoEmail"
+								class="w-full px-4 py-2 border rounded-md focus:outline-none"
+								:class="email.invalido ? 'border-red-500 focus:ring focus:ring-red-500' : 'focus:ring focus:ring-indigo-500'"
+								@blur="email.interagido = true"
+								required
+							/>
+							<p x-show="email.invalido && !email.existe" class="text-red-500 text-xs mt-1">
+								O email deve ser válido e não pode estar em branco.
+							</p>
+							<p id="validacaoEmail"></p>
+						</div>
 						@inputSenhaCadastro()
 						<button
-              id="post-btn"
+							id="post-btn"
 							type="submit"
 							class="font-bold text-xs uppercase w-full disabled:bg-opacity-50 bg-blue-500 text-white p-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
 							:disabled="camposInvalidos || camposNaoInteragidos"

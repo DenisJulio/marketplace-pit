@@ -26,12 +26,13 @@ func (h *UsuarioHandler) CadastraNovoUsuario(ctx echo.Context) error {
 	h.logger.Debugf("Iniciando cadastro de novo usuario")
 
 	nome := ctx.FormValue("nome")
+	email := ctx.FormValue("email")
 	nomeDeUsuario := ctx.FormValue("nomeDeUsuario")
 	senha := ctx.FormValue("senha")
 
 	h.logger.Debugf("Recebendo dados para cadastro: %s, %s, %s", nome, nomeDeUsuario, senha)
 
-	if err := h.usuSvc.RegistraNovoUsuario(nome, nomeDeUsuario, senha, store.AvatarPadrao); err != nil {
+	if err := h.usuSvc.RegistraNovoUsuario(nome, email, nomeDeUsuario, senha, store.AvatarPadrao); err != nil {
 		if errors.Is(err, services.ErrDadosParaRegistroInvalidos) {
 			return ctx.NoContent(http.StatusBadRequest)
 		}

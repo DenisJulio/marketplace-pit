@@ -39,7 +39,7 @@ func (us *UsuarioService) VerificaUsuarioExistente(nomeDeUsuario string) bool {
 	return us.s.VerificaUsuarioExistente(nomeDeUsuario)
 }
 
-func (us *UsuarioService) RegistraNovoUsuario(nome, nomeDeUsuario, senha, imagem string) error {
+func (us *UsuarioService) RegistraNovoUsuario(nome, email, nomeDeUsuario, senha, imagem string) error {
 	if err := validaDadosParaRegistro(nome, nomeDeUsuario, senha); err != nil {
 		us.logger.Debugf("%v", err)
 		return ErrDadosParaRegistroInvalidos
@@ -48,7 +48,7 @@ func (us *UsuarioService) RegistraNovoUsuario(nome, nomeDeUsuario, senha, imagem
 		us.logger.Debugf("%v", ErrUsuarioExistente)
 		return ErrUsuarioExistente
 	}
-	if err := us.s.InsereNovoUsuario(nomeDeUsuario, nome, senha, imagem); err != nil {
+	if err := us.s.InsereNovoUsuario(nomeDeUsuario, email, nome, senha, imagem); err != nil {
 		return err
 	}
 	return nil

@@ -12,7 +12,7 @@ type UsuarioStore interface {
 	BuscaUsuarioPorId(ID int) (model.Usuario, error)
 	BuscaUsuarioPorNomeDeUsuario(nomeDeUsuario string) (model.Usuario, error)
 	VerificaUsuarioExistente(nomeDeUsuario string) bool
-	InsereNovoUsuario(nomeDeUsuario, nome, senha, imagem string) error
+	InsereNovoUsuario(nomeDeUsuario, email, nome, senha, imagem string) error
 	VerificaSegredosDeUsuario(nomeDeUsuario, senha string) (model.Usuario, error)
 	AtualizaImagemDeUsuario(nomeDeUsuario, imagem string) (string, error)
 	AtualizaNome(nomeDeUsuario, nome string) error
@@ -33,9 +33,9 @@ func NewSQLUsuarioStore(db *sql.DB, logger utils.Logger) *SQLUsuarioStore {
 }
 
 func (s *SQLUsuarioStore) BuscaUsuarioPorId(ID int) (model.Usuario, error) {
-	row := s.db.QueryRow("SELECT id, nome_de_usuario, nome, imagem FROM usuarios WHERE id = $1", ID)
+	row := s.db.QueryRow("SELECT id, nome_de_usuario, email, nome, imagem FROM usuarios WHERE id = $1", ID)
 	var u model.Usuario
-	err := row.Scan(&u.ID, &u.NomeDeUsuario, &u.Nome, &u.Imagem)
+	err := row.Scan(&u.ID, &u.NomeDeUsuario, &u.Email, &u.Nome, &u.Imagem)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			s.logger.Debugf("Usuario com ID=%d nao encontrado. %v", ID, err)
@@ -48,9 +48,9 @@ func (s *SQLUsuarioStore) BuscaUsuarioPorId(ID int) (model.Usuario, error) {
 }
 
 func (s *SQLUsuarioStore) BuscaUsuarioPorNomeDeUsuario(nomeDeUsuario string) (model.Usuario, error) {
-	row := s.db.QueryRow("SELECT id, nome_de_usuario, nome, imagem FROM usuarios WHERE nome_de_usuario = $1", nomeDeUsuario)
+	row := s.db.QueryRow("SELECT id, nome_de_usuario, nome, email, imagem FROM usuarios WHERE nome_de_usuario = $1", nomeDeUsuario)
 	var u model.Usuario
-	err := row.Scan(&u.ID, &u.NomeDeUsuario, &u.Nome, &u.Imagem)
+	err := row.Scan(&u.ID, &u.NomeDeUsuario, &u.Nome, &u.Email, &u.Imagem)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			s.logger.Debugf("Usuario com nome de usuario=%s nao encontrado. %v", nomeDeUsuario, err)
@@ -76,9 +76,9 @@ func (s *SQLUsuarioStore) VerificaUsuarioExistente(nomeDeUsuario string) bool {
 	return true
 }
 
-func (s *SQLUsuarioStore) InsereNovoUsuario(nomeDeUsuario, nome, senha, imagem string) error {
-	q := `INSERT INTO usuarios (nome_de_usuario, nome, senha, imagem) VALUES ($1, $2, $3, $4)`
-	_, err := s.db.Exec(q, nomeDeUsuario, nome, senha, imagem)
+func (s *SQLUsuarioStore) InsereNovoUsuario(nomeDeUsuario, email, nome, senha, imagem string) error {
+	q := `INSERT INTO usuarios (nome_de_usuario, email, nome, senha, imagem) VALUES ($1, $2, $3, $4, $5)`
+	_, err := s.db.Exec(q, nomeDeUsuario, email, nome, senha, imagem)
 	if err != nil {
 		s.logger.Errorf("Erro ao inserir os dados para novo segredos de usuario. %v", err)
 		return err
@@ -87,10 +87,10 @@ func (s *SQLUsuarioStore) InsereNovoUsuario(nomeDeUsuario, nome, senha, imagem s
 }
 
 func (s *SQLUsuarioStore) VerificaSegredosDeUsuario(nomeDeUsuario, senha string) (model.Usuario, error) {
-	q := `SELECT id, nome_de_usuario, nome, senha, imagem FROM usuarios WHERE nome_de_usuario = $1`
+	q := `SELECT id, nome_de_usuario, email, nome, senha, imagem FROM usuarios WHERE nome_de_usuario = $1`
 	row := s.db.QueryRow(q, nomeDeUsuario)
 	var u model.Usuario
-	err := row.Scan(&u.ID, &u.NomeDeUsuario, &u.Nome, &u.Senha, &u.Imagem)
+	err := row.Scan(&u.ID, &u.NomeDeUsuario, &u.Email, &u.Nome, &u.Senha, &u.Imagem)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return model.Usuario{}, ErrUsuarioNaoEncontrado
