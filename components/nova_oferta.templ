@@ -1,7 +1,6 @@
 package components
 
 import (
-	"fmt"
 	"github.com/DenisJulio/marketplace-pit/model"
 	"github.com/DenisJulio/marketplace-pit/utils"
 )
@@ -12,7 +11,7 @@ templ NovaOferta(anuncio model.Anuncio, anunciante model.Usuario) {
 			<div class="flex justify-center">
 				<div class="p-4 w-full sm:w-[65vw] md:w-[80vw] lg:max-w-4xl">
 					<h1 class="main-heading">Nova Oferta</h1>
-					<div class="mt-4 flex flex-col gap-4">
+					<div class="mt-4 flex flex-col gap-10">
 						<div
 							id="card-preview"
 							class="p-4 w-[40vw] min-w-fit max-w-lg self-end bg-gray-200 border border-slate-400 rounded-md"
@@ -23,36 +22,13 @@ templ NovaOferta(anuncio model.Anuncio, anunciante model.Usuario) {
 							<div class="mt-2 text-slate-600">Anunciante:</div>
 							@anunciantePreview(anunciante)
 						</div>
-						<div class="self-stretch">
-							<form
-								hx-post={ string(templ.URL(fmt.Sprintf("/anuncios/%d/nova-oferta", anuncio.ID))) }
-								hx-on::after-request="
-                  if (event.detail.xhr.status === 204) {
-                    htmx.ajax('GET', '/', {target: '#content', swap: 'outerHTML', select: '#content'});
-                  }
-                "
+							<a
+								type="submit"
+								class="block text-center w-full mt-4 btn-primary md:w-[20vw] self-center"
+								href={ templ.URL("mailto:" + anunciante.Email + "?subject=Interesse no anuncio") }
 							>
-								<div class="mb-4">
-									<label for="mensagem" class="block text-gray-700 text-sm font-bold mb-2">
-										Mensagem para o
-										anunciante:
-									</label>
-									<textarea
-										id="mensagem"
-										name="mensagem"
-										rows="5"
-										class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline resize-none"
-										placeholder="Escreva sua mensagem aqui..."
-									></textarea>
-								</div>
-								<button
-									type="submit"
-									class="mt-4 w-full btn-primary"
-								>
-									Criar Oferta
-								</button>
-							</form>
-						</div>
+								Contatar Anunciante
+							</a>
 					</div>
 				</div>
 			</div>
