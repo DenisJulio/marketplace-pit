@@ -3,6 +3,7 @@
   "private": true,
   "scripts": {
     "dev": "npx tailwindcss -i ./public/input.css -o ./public/static/style.css --watch",
+    "build": "npx tailwindcss -i ./public/input.css -o ./public/static/style.css",
     "serve": "node server.js"
   },
   "devDependencies": {
